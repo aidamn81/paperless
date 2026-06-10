@@ -20,14 +20,17 @@
             pointer-events: none;
         }
 
+        /* MUCH larger tap/click area */
         .bingo-cell {
-            min-width: 42px;
-            min-height: 48px;
+            min-width: 52px;
+            min-height: 58px;
+            width: 52px;
+            height: 58px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 1.15rem;
+            font-size: 1.25rem;
             border: 1px solid #444;
             cursor: pointer;
             user-select: none;
@@ -42,20 +45,24 @@
 
         .bingo-row {
             display: flex;
+            justify-content: center;
         }
 
         .bingo-block {
-            margin: 1rem 0;
+            margin: 1.2rem 0;
             border: 2px solid #333;
-            padding: 0.5rem;
+            padding: 0.7rem;
             border-radius: 6px;
             background: #0a0a0a;
+            display: inline-block;
         }
 
         .game-mode {
             background: #222;
             border: 1px solid #555;
             color: #fff;
+            padding: 0.6rem 1.2rem;
+            font-size: 1rem;
         }
 
         .game-mode-active {
@@ -65,30 +72,30 @@
         }
     </style>
 </head>
-<body class="bg-black min-h-screen">
+<body class="bg-black min-h-screen flex flex-col items-center">
     <!-- Header -->
-    <header class="bg-gray-900 shadow p-4">
-        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
+    <header class="bg-gray-900 shadow p-4 w-full max-w-3xl rounded-md mt-4">
+        <div class="text-center">
             <h1 class="text-2xl font-bold text-blue-400">UK 90-Ball Bingo</h1>
-            <div id="playerInfo" class="text-gray-200 mt-2 md:mt-0"></div>
+            <div id="playerInfo" class="text-gray-200 mt-2"></div>
         </div>
     </header>
 
     <!-- Game Mode Selection -->
-    <section class="bg-gray-900 shadow mt-4 p-4 container mx-auto rounded-md max-w-3xl">
-        <h2 class="text-lg font-semibold mb-3">Select Round Type:</h2>
-        <div class="flex flex-wrap gap-3">
-            <button id="modeOneLine" class="game-mode px-4 py-2 rounded border">ONE LINE</button>
-            <button id="modeTwoLines" class="game-mode px-4 py-2 rounded border">TWO LINES</button>
-            <button id="modeFullHouse" class="game-mode px-4 py-2 rounded border">FULL HOUSE</button>
+    <section class="bg-gray-900 shadow mt-4 p-4 w-full max-w-3xl rounded-md">
+        <h2 class="text-lg font-semibold mb-3 text-center">Select Round Type:</h2>
+        <div class="flex flex-wrap justify-center gap-4">
+            <button id="modeOneLine" class="game-mode rounded">ONE LINE</button>
+            <button id="modeTwoLines" class="game-mode rounded">TWO LINES</button>
+            <button id="modeFullHouse" class="game-mode rounded">FULL HOUSE</button>
         </div>
-        <div id="currentModeDisplay" class="mt-3 text-xl font-bold text-green-400">Not selected</div>
+        <div id="currentModeDisplay" class="mt-4 text-xl font-bold text-green-400 text-center">Not selected</div>
     </section>
 
-    <!-- Bingo Card Area - 5 Blocks Stacked -->
-    <section class="mt-6 container mx-auto bg-gray-900 p-4 shadow rounded-md max-w-3xl mb-8">
+    <!-- Bingo Card Area - Centered -->
+    <section class="mt-6 mb-8 w-full max-w-3xl flex flex-col items-center">
         <h3 class="text-center text-xl font-semibold mb-4">Your Bingo Sheet</h3>
-        <div id="bingoCard" class="flex flex-col gap-2 items-center"></div>
+        <div id="bingoCard" class="flex flex-col items-center gap-2"></div>
     </section>
 
     <script>
@@ -131,7 +138,7 @@
             return [...arr].sort(() => Math.random() - 0.5);
         }
 
-        // Render 5 separate blocks stacked vertically
+        // Render 5 separate blocks stacked and centered
         function renderAllBlocks() {
             const container = document.getElementById("bingoCard");
             container.innerHTML = "";
@@ -141,7 +148,7 @@
                 const blockData = generateBingoBlock();
                 const blockDiv = document.createElement("div");
                 blockDiv.className = "bingo-block";
-                blockDiv.innerHTML = `<div class="text-center text-gray-400 text-sm mb-1">Block ${b}</div>`;
+                blockDiv.innerHTML = `<div class="text-center text-gray-400 text-sm mb-2">Block ${b}</div>`;
 
                 blockData.forEach(row => {
                     const rowDiv = document.createElement("div");
@@ -184,7 +191,7 @@
 
             document.getElementById("modeOneLine").addEventListener("click", () => setGameMode("oneLine", gameModes.oneLine));
             document.getElementById("modeTwoLines").addEventListener("click", () => setGameMode("twoLines", gameModes.twoLines));
-            document.getElementById("fullHouse").addEventListener("click", () => setGameMode("fullHouse", gameModes.fullHouse));
+            document.getElementById("modeFullHouse").addEventListener("click", () => setGameMode("fullHouse", gameModes.fullHouse));
         });
     </script>
 </body>
