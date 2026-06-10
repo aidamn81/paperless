@@ -6,67 +6,93 @@
     <title>UK 90-Ball Bingo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        body {
+            background: #000000;
+            color: #ffffff;
+        }
+
         /* Bingo dauber style */
         .marked {
-            background: rgba(139, 0, 0, 0.35);
+            background: rgba(220, 50, 50, 0.35);
             border-radius: 50%;
-            box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.2);
+            box-shadow: 0 0 0 2px rgba(220, 50, 50, 0.2);
             transition: all 0.15s ease;
             pointer-events: none;
         }
+
         .bingo-cell {
-            min-width: 40px;
-            min-height: 45px;
+            min-width: 42px;
+            min-height: 48px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 1.1rem;
-            border: 1px solid #ccc;
+            font-size: 1.15rem;
+            border: 1px solid #444;
             cursor: pointer;
             user-select: none;
+            background: #111;
+            color: #fff;
         }
+
         .empty {
-            background-color: #f8f8f8;
+            background-color: #1a1a1a;
             color: transparent;
         }
+
         .bingo-row {
             display: flex;
         }
+
+        .bingo-block {
+            margin: 1rem 0;
+            border: 2px solid #333;
+            padding: 0.5rem;
+            border-radius: 6px;
+            background: #0a0a0a;
+        }
+
+        .game-mode {
+            background: #222;
+            border: 1px solid #555;
+            color: #fff;
+        }
+
         .game-mode-active {
             background-color: #2563eb;
+            border-color: #2563eb;
             color: white;
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-black min-h-screen">
     <!-- Header -->
-    <header class="bg-white shadow p-4">
+    <header class="bg-gray-900 shadow p-4">
         <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
-            <h1 class="text-2xl font-bold text-blue-800">UK 90-Ball Bingo</h1>
-            <div id="playerInfo" class="text-gray-700 mt-2 md:mt-0"></div>
+            <h1 class="text-2xl font-bold text-blue-400">UK 90-Ball Bingo</h1>
+            <div id="playerInfo" class="text-gray-200 mt-2 md:mt-0"></div>
         </div>
     </header>
 
     <!-- Game Mode Selection -->
-    <section class="bg-white shadow mt-4 p-4 container mx-auto rounded-md">
+    <section class="bg-gray-900 shadow mt-4 p-4 container mx-auto rounded-md max-w-3xl">
         <h2 class="text-lg font-semibold mb-3">Select Round Type:</h2>
         <div class="flex flex-wrap gap-3">
             <button id="modeOneLine" class="game-mode px-4 py-2 rounded border">ONE LINE</button>
             <button id="modeTwoLines" class="game-mode px-4 py-2 rounded border">TWO LINES</button>
             <button id="modeFullHouse" class="game-mode px-4 py-2 rounded border">FULL HOUSE</button>
         </div>
-        <div id="currentModeDisplay" class="mt-3 text-xl font-bold text-green-700">Not selected</div>
+        <div id="currentModeDisplay" class="mt-3 text-xl font-bold text-green-400">Not selected</div>
     </section>
 
-    <!-- Bingo Card Area -->
-    <section class="mt-6 container mx-auto bg-white p-4 shadow rounded-md">
+    <!-- Bingo Card Area - 5 Blocks Stacked -->
+    <section class="mt-6 container mx-auto bg-gray-900 p-4 shadow rounded-md max-w-3xl mb-8">
         <h3 class="text-center text-xl font-semibold mb-4">Your Bingo Sheet</h3>
         <div id="bingoCard" class="flex flex-col gap-2 items-center"></div>
     </section>
 
     <script>
-        // Get player name from login (from URL parameter or session)
+        // Get player name from login (URL parameter)
         const urlParams = new URLSearchParams(window.location.search);
         const playerName = urlParams.get("name") || "Guest Player";
         document.getElementById("playerInfo").textContent = `Player: ${playerName}`;
@@ -78,8 +104,8 @@
             fullHouse: "FULL HOUSE"
         };
 
-        // Generate unique UK 90-ball bingo card
-        function generateBingoCard() {
+        // Generate one standard UK 90-ball block (3 rows × 9 columns, 5 numbers per row)
+        function generateBingoBlock() {
             const columns = Array.from({ length: 9 }, (_, i) => {
                 const start = i * 10 + 1;
                 const end = i === 8 ? 90 : start + 9;
@@ -88,16 +114,16 @@
                 return shuffleArray(numbers);
             });
 
-            const card = [];
+            const block = [];
             for (let row = 0; row < 3; row++) {
                 const rowData = Array(9).fill(null);
-                const filledPositions = shuffleArray([0,1,2,3,4,5,6,7,8]).slice(0,5);
-                filledPositions.forEach((col) => {
+                const filledPositions = shuffleArray([0,1,2,3,4,5,6,7,8]).slice(0, 5);
+                filledPositions.forEach(col => {
                     rowData[col] = columns[col].pop();
                 });
-                card.push(rowData);
+                block.push(rowData);
             }
-            return card;
+            return block;
         }
 
         // Helper: shuffle array
@@ -105,26 +131,36 @@
             return [...arr].sort(() => Math.random() - 0.5);
         }
 
-        // Render bingo card
-        function renderCard(cardData) {
+        // Render 5 separate blocks stacked vertically
+        function renderAllBlocks() {
             const container = document.getElementById("bingoCard");
             container.innerHTML = "";
 
-            cardData.forEach((row, rowIndex) => {
-                const rowDiv = document.createElement("div");
-                rowDiv.className = "bingo-row";
+            // Create 5 unique blocks
+            for (let b = 1; b <= 5; b++) {
+                const blockData = generateBingoBlock();
+                const blockDiv = document.createElement("div");
+                blockDiv.className = "bingo-block";
+                blockDiv.innerHTML = `<div class="text-center text-gray-400 text-sm mb-1">Block ${b}</div>`;
 
-                row.forEach((num, colIndex) => {
-                    const cell = document.createElement("div");
-                    cell.className = `bingo-cell ${num === null ? "empty" : ""}`;
-                    cell.textContent = num || "";
-                    cell.dataset.marked = "false";
-                    cell.addEventListener("click", () => markCell(cell));
-                    rowDiv.appendChild(cell);
+                blockData.forEach(row => {
+                    const rowDiv = document.createElement("div");
+                    rowDiv.className = "bingo-row";
+
+                    row.forEach(num => {
+                        const cell = document.createElement("div");
+                        cell.className = `bingo-cell ${num === null ? "empty" : ""}`;
+                        cell.textContent = num || "";
+                        cell.dataset.marked = "false";
+                        cell.addEventListener("click", () => markCell(cell));
+                        rowDiv.appendChild(cell);
+                    });
+
+                    blockDiv.appendChild(rowDiv);
                 });
 
-                container.appendChild(rowDiv);
-            });
+                container.appendChild(blockDiv);
+            }
         }
 
         // Mark cell permanently
@@ -142,14 +178,13 @@
             document.getElementById(`mode${mode.charAt(0).toUpperCase() + mode.slice(1)}`).classList.add("game-mode-active");
         }
 
-        // Initialise everything
+        // Initialise
         window.addEventListener("load", () => {
-            const myCard = generateBingoCard();
-            renderCard(myCard);
+            renderAllBlocks();
 
             document.getElementById("modeOneLine").addEventListener("click", () => setGameMode("oneLine", gameModes.oneLine));
             document.getElementById("modeTwoLines").addEventListener("click", () => setGameMode("twoLines", gameModes.twoLines));
-            document.getElementById("modeFullHouse").addEventListener("click", () => setGameMode("fullHouse", gameModes.fullHouse));
+            document.getElementById("fullHouse").addEventListener("click", () => setGameMode("fullHouse", gameModes.fullHouse));
         });
     </script>
 </body>
