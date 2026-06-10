@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paperless Bingo</title>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(5, 60px); gap: 10px; margin-top: 20px; }
+        .cell { width: 60px; height: 60px; border: 2px solid #333; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; }
+        .marked { background-color: #ffcc00; }
+        #controls { margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <h1>Bingo Card</h1>
+    <div class="grid" id="bingoGrid"></div>
+
+    <div id="controls">
+        <button onclick="generateBoard()">New Card</button>
+        <button onclick="resetBoard()">Reset</button>
+    </div>
+
+    <script>
+        function generateBoard() {
+            const grid = document.getElementById('bingoGrid');
+            grid.innerHTML = '';
+            for (let i = 0; i < 25; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.innerText = Math.floor(Math.random() * 75) + 1;
+                cell.onclick = () => cell.classList.toggle('marked');
+                grid.appendChild(cell);
+            }
+        }
+        
+        function resetBoard() {
+            document.querySelectorAll('.cell').forEach(c => c.classList.remove('marked'));
+        }
+
+        generateBoard();
+    </script>
+</body>
+</html>
