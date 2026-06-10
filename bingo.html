@@ -4,18 +4,28 @@
     <meta charset="UTF-8">
     <!-- Make it work properly on all mobile/tablet screens -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>UK 90-Ball Bingo</title>
+    <title>🎀 Candy Bingo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         * {
             box-sizing: border-box;
         }
+
+        /* Neon glow animation */
+        @keyframes neonGlow {
+            0% { box-shadow: 0 0 5px #9d4edd, 0 0 10px #9d4edd, 0 0 20px #9d4edd40; }
+            50% { box-shadow: 0 0 10px #c77dff, 0 0 20px #c77dff, 0 0 30px #c77dff60; }
+            100% { box-shadow: 0 0 5px #9d4edd, 0 0 10px #9d4edd, 0 0 20px #9d4edd40; }
+        }
+
         body {
             background: #000000;
+            background-image: radial-gradient(circle at top, #2b0b47 0%, #000000 70%);
             color: #ffffff;
             margin: 0;
             padding: 0.5rem;
             position: relative;
+            font-family: 'Segoe UI', Roboto, sans-serif;
         }
 
         /* Bingo Lady Image - Top Right Corner */
@@ -27,15 +37,15 @@
             height: auto;
             z-index: 10;
             pointer-events: none; /* won't block taps/clicks */
-            opacity: 0.9;
+            opacity: 0.95;
             border-radius: 8px;
         }
 
-        /* Bingo dauber style */
+        /* Bingo dauber style - purple/red neon */
         .marked {
-            background: rgba(220, 50, 50, 0.35);
+            background: rgba(199, 125, 255, 0.4);
             border-radius: 50%;
-            box-shadow: 0 0 0 2px rgba(220, 50, 50, 0.2);
+            box-shadow: 0 0 0 2px rgba(157, 78, 221, 0.3), 0 0 8px rgba(199, 125, 255, 0.5);
             transition: all 0.15s ease;
             pointer-events: none;
         }
@@ -49,16 +59,21 @@
             justify-content: center;
             font-weight: bold;
             font-size: clamp(1rem, 3.5vw, 1.25rem);
-            border: 1px solid #444;
+            border: 1px solid #6a2cac;
             cursor: pointer;
             user-select: none;
-            background: #111;
-            color: #fff;
+            background: #120529;
+            color: #e0aaff;
+            transition: border 0.2s;
+        }
+
+        .bingo-cell:hover {
+            border-color: #c77dff;
         }
 
         /* Empty spaces = already marked */
         .empty {
-            background-color: #2a2a2a;
+            background-color: #200b40;
             color: transparent;
             opacity: 0.5;
             pointer-events: none;
@@ -74,33 +89,65 @@
         .bingo-block {
             width: fit-content;
             margin: 1rem auto;
-            border: 2px solid #333;
+            border: 2px solid #4b1b78;
             padding: 0.6rem;
-            border-radius: 6px;
-            background: #0a0a0a;
+            border-radius: 8px;
+            background: #0a001a;
+            animation: neonGlow 4s infinite ease-in-out;
         }
 
         .block-title {
             text-align: center;
-            color: #999;
+            color: #c77dff;
             font-size: clamp(0.85rem, 3vw, 1rem);
             margin-bottom: 0.5rem;
+            text-shadow: 0 0 4px #9d4edd;
         }
 
         .game-mode {
-            background: #222;
-            border: 1px solid #555;
-            color: #fff;
+            background: #120529;
+            border: 1px solid #6a2cac;
+            color: #e0aaff;
             padding: 0.6rem 1.2rem;
             font-size: clamp(0.9rem, 3vw, 1rem);
             border-radius: 6px;
             cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .game-mode:hover {
+            border-color: #c77dff;
+            box-shadow: 0 0 6px #9d4edd40;
         }
 
         .game-mode-active {
-            background-color: #2563eb;
-            border-color: #2563eb;
+            background: linear-gradient(90deg, #7b2cbf, #9d4edd);
+            border-color: #c77dff;
             color: white;
+            box-shadow: 0 0 10px #9d4edd80;
+        }
+
+        /* Header & sections styling */
+        header, section {
+            background: #0a001a;
+            border: 1px solid #4b1b78;
+            border-radius: 10px;
+            animation: neonGlow 5s infinite ease-in-out;
+        }
+
+        h1, h2, h3 {
+            color: #e0aaff;
+            text-shadow: 0 0 6px #9d4edd;
+        }
+
+        #playerInfo {
+            color: #c77dff;
+            font-weight: 500;
+        }
+
+        #currentModeDisplay {
+            color: #b388ff;
+            text-shadow: 0 0 5px #9d4edd;
         }
 
         /* BINGO Popup */
@@ -110,7 +157,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.85);
+            background: rgba(0, 0, 0, 0.9);
             display: none;
             align-items: center;
             justify-content: center;
@@ -119,39 +166,47 @@
         }
 
         .popup-content {
-            background: #111;
-            border: 3px solid #ffcc00;
+            background: #0a001a;
+            border: 3px solid #c77dff;
             padding: clamp(1.5rem, 5vw, 3rem) clamp(2rem, 8vw, 5rem);
             border-radius: 12px;
             text-align: center;
-            box-shadow: 0 0 40px #ff0000;
+            box-shadow: 0 0 30px #9d4edd, 0 0 60px #7b2cbf80;
             width: 100%;
-            max-width: 400px;
+            max-width: 420px;
         }
 
         .popup-content h2 {
             font-size: clamp(2.5rem, 10vw, 4rem);
-            color: #ff0000;
+            color: #c77dff;
             font-weight: bold;
             margin: 0;
-            text-shadow: 0 0 15px #ff8800;
+            text-shadow: 0 0 15px #9d4edd, 0 0 30px #7b2cbf;
         }
 
         .popup-content p {
             font-size: clamp(1.1rem, 4vw, 1.5rem);
             margin-top: 1rem;
-            color: #fff;
+            color: #e0aaff;
         }
 
         .popup-content button {
             margin-top: 2rem;
             padding: 0.8rem 2rem;
             font-size: clamp(1rem, 3.5vw, 1.2rem);
-            background: #2563eb;
+            background: linear-gradient(90deg, #7b2cbf, #9d4edd);
             border: none;
             border-radius: 6px;
             color: white;
+            font-weight: bold;
             cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 0 8px #9d4edd60;
+        }
+
+        .popup-content button:hover {
+            background: linear-gradient(90deg, #9d4edd, #c77dff);
+            box-shadow: 0 0 15px #c77dff;
         }
     </style>
 </head>
@@ -161,22 +216,22 @@
     <img id="bingoLady" src="candy1.PNG" alt="Bingo Lady">
 
     <!-- Header -->
-    <header class="bg-gray-900 shadow p-4 w-full max-w-3xl rounded-md mt-2">
+    <header class="shadow p-4 w-full max-w-3xl rounded-md mt-2">
         <div class="text-center">
-            <h1 class="text-xl md:text-2xl font-bold text-blue-400">UK 90-Ball Bingo</h1>
-            <div id="playerInfo" class="text-gray-200 mt-2"></div>
+            <h1 class="text-xl md:text-2xl font-bold">🎀 Candy Bingo 🎀</h1>
+            <div id="playerInfo" class="mt-2"></div>
         </div>
     </header>
 
     <!-- Game Mode Selection -->
-    <section class="bg-gray-900 shadow mt-4 p-4 w-full max-w-3xl rounded-md">
+    <section class="shadow mt-4 p-4 w-full max-w-3xl rounded-md">
         <h2 class="text-lg font-semibold mb-3 text-center">Select Round Type:</h2>
         <div class="flex flex-wrap justify-center gap-3">
             <button id="modeOneLine" class="game-mode">ONE LINE</button>
             <button id="modeTwoLines" class="game-mode">TWO LINES</button>
             <button id="modeFullHouse" class="game-mode">FULL HOUSE</button>
         </div>
-        <div id="currentModeDisplay" class="mt-4 text-xl font-bold text-green-400 text-center">Not selected</div>
+        <div id="currentModeDisplay" class="mt-4 text-xl font-bold text-center">Not selected</div>
     </section>
 
     <!-- Bingo Card Area - Blocks stacked directly under each other -->
