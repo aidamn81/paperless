@@ -2,13 +2,19 @@
 <html lang="en-GB">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Make it work properly on all mobile/tablet screens -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>UK 90-Ball Bingo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        * {
+            box-sizing: border-box;
+        }
         body {
             background: #000000;
             color: #ffffff;
+            margin: 0;
+            padding: 0.5rem;
         }
 
         /* Bingo dauber style */
@@ -20,17 +26,15 @@
             pointer-events: none;
         }
 
-        /* Large tap/click area */
+        /* Responsive cell size - adapts to screen width */
         .bingo-cell {
-            min-width: 52px;
-            min-height: 58px;
-            width: 52px;
-            height: 58px;
+            width: clamp(38px, 9vw, 52px);
+            height: clamp(42px, 11vw, 58px);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 1.25rem;
+            font-size: clamp(1rem, 3.5vw, 1.25rem);
             border: 1px solid #444;
             cursor: pointer;
             user-select: none;
@@ -43,20 +47,30 @@
             background-color: #2a2a2a;
             color: transparent;
             opacity: 0.5;
+            pointer-events: none;
         }
 
         .bingo-row {
             display: flex;
             justify-content: center;
+            gap: 1px;
         }
 
+        /* Blocks stacked directly under each other */
         .bingo-block {
-            margin: 1.2rem 0;
+            width: fit-content;
+            margin: 1rem auto;
             border: 2px solid #333;
-            padding: 0.7rem;
+            padding: 0.6rem;
             border-radius: 6px;
             background: #0a0a0a;
-            display: inline-block;
+        }
+
+        .block-title {
+            text-align: center;
+            color: #999;
+            font-size: clamp(0.85rem, 3vw, 1rem);
+            margin-bottom: 0.5rem;
         }
 
         .game-mode {
@@ -64,7 +78,9 @@
             border: 1px solid #555;
             color: #fff;
             padding: 0.6rem 1.2rem;
-            font-size: 1rem;
+            font-size: clamp(0.9rem, 3vw, 1rem);
+            border-radius: 6px;
+            cursor: pointer;
         }
 
         .game-mode-active {
@@ -85,20 +101,22 @@
             align-items: center;
             justify-content: center;
             z-index: 9999;
+            padding: 1rem;
         }
-
 
         .popup-content {
             background: #111;
             border: 3px solid #ffcc00;
-            padding: 3rem 5rem;
+            padding: clamp(1.5rem, 5vw, 3rem) clamp(2rem, 8vw, 5rem);
             border-radius: 12px;
             text-align: center;
             box-shadow: 0 0 40px #ff0000;
+            width: 100%;
+            max-width: 400px;
         }
 
         .popup-content h2 {
-            font-size: 4rem;
+            font-size: clamp(2.5rem, 10vw, 4rem);
             color: #ff0000;
             font-weight: bold;
             margin: 0;
@@ -106,7 +124,7 @@
         }
 
         .popup-content p {
-            font-size: 1.5rem;
+            font-size: clamp(1.1rem, 4vw, 1.5rem);
             margin-top: 1rem;
             color: #fff;
         }
@@ -114,7 +132,7 @@
         .popup-content button {
             margin-top: 2rem;
             padding: 0.8rem 2rem;
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 3.5vw, 1.2rem);
             background: #2563eb;
             border: none;
             border-radius: 6px;
@@ -125,9 +143,9 @@
 </head>
 <body class="bg-black min-h-screen flex flex-col items-center">
     <!-- Header -->
-    <header class="bg-gray-900 shadow p-4 w-full max-w-3xl rounded-md mt-4">
+    <header class="bg-gray-900 shadow p-4 w-full max-w-3xl rounded-md mt-2">
         <div class="text-center">
-            <h1 class="text-2xl font-bold text-blue-400">UK 90-Ball Bingo</h1>
+            <h1 class="text-xl md:text-2xl font-bold text-blue-400">UK 90-Ball Bingo</h1>
             <div id="playerInfo" class="text-gray-200 mt-2"></div>
         </div>
     </header>
@@ -135,18 +153,18 @@
     <!-- Game Mode Selection -->
     <section class="bg-gray-900 shadow mt-4 p-4 w-full max-w-3xl rounded-md">
         <h2 class="text-lg font-semibold mb-3 text-center">Select Round Type:</h2>
-        <div class="flex flex-wrap justify-center gap-4">
-            <button id="modeOneLine" class="game-mode rounded">ONE LINE</button>
-            <button id="modeTwoLines" class="game-mode rounded">TWO LINES</button>
-            <button id="modeFullHouse" class="game-mode rounded">FULL HOUSE</button>
+        <div class="flex flex-wrap justify-center gap-3">
+            <button id="modeOneLine" class="game-mode">ONE LINE</button>
+            <button id="modeTwoLines" class="game-mode">TWO LINES</button>
+            <button id="modeFullHouse" class="game-mode">FULL HOUSE</button>
         </div>
         <div id="currentModeDisplay" class="mt-4 text-xl font-bold text-green-400 text-center">Not selected</div>
     </section>
 
-    <!-- Bingo Card Area -->
+    <!-- Bingo Card Area - Blocks stacked directly under each other -->
     <section class="mt-6 mb-8 w-full max-w-3xl flex flex-col items-center">
         <h3 class="text-center text-xl font-semibold mb-4">Your Bingo Sheet</h3>
-        <div id="bingoCard" class="flex flex-col items-center gap-2"></div>
+        <div id="bingoCard" class="flex flex-col items-center w-full"></div>
     </section>
 
     <!-- BINGO Popup -->
@@ -205,7 +223,11 @@
                 const blockDiv = document.createElement("div");
                 blockDiv.className = "bingo-block";
                 blockDiv.dataset.block = b;
-                blockDiv.innerHTML = `<div class="text-center text-gray-400 text-sm mb-2">Block ${b}</div>`;
+
+                const title = document.createElement("div");
+                title.className = "block-title";
+                title.textContent = `Block ${b}`;
+                blockDiv.appendChild(title);
 
                 blockData.forEach((numArr, rowIndex) => {
                     const rowDiv = document.createElement("div");
@@ -213,8 +235,8 @@
                     rowDiv.dataset.row = rowIndex;
 
                     numArr.forEach(num => {
-                        const cell = document.createElement("div");
                         const isEmpty = num === null;
+                        const cell = document.createElement("div");
                         cell.className = `bingo-cell ${isEmpty ? "empty" : ""}`;
                         cell.textContent = num || "";
                         cell.dataset.marked = isEmpty ? "true" : "false"; // empty = already marked
@@ -240,41 +262,38 @@
             if (!currentGameMode) return;
 
             const blocks = document.querySelectorAll(".bingo-block");
+            let totalCompletedLines = 0;
 
             for (const block of blocks) {
                 const rows = block.querySelectorAll(".bingo-row");
-                const rowMarkedStatus = [];
-
                 rows.forEach(row => {
-                    const cells = row.querySelectorAll(".bingo-cell");
-                    const allMarked = Array.from(cells).every(c => c.dataset.marked === "true");
-                    rowMarkedStatus.push(allMarked);
+                    const allMarked = Array.from(row.querySelectorAll(".bingo-cell"))
+                        .every(cell => cell.dataset.marked === "true");
+                    if (allMarked) totalCompletedLines++;
                 });
 
-                // ONE LINE: any single full row
-                if (currentGameMode === "oneLine") {
-                    if (rowMarkedStatus.includes(true)) {
-                        showBingo();
-                        return;
-                    }
+                // ONE LINE: any single full line anywhere
+                if (currentGameMode === "oneLine" && totalCompletedLines >= 1) {
+                    showBingo();
+                    return;
                 }
 
-                // TWO LINES: any two full rows in same block
-                if (currentGameMode === "twoLines") {
-                    const completedRows = rowMarkedStatus.filter(Boolean).length;
-                    if (completedRows >= 2) {
-                        showBingo();
-                        return;
-                    }
-                }
-
-                // FULL HOUSE: all 3 rows complete in one block
+                // FULL HOUSE: all 3 lines in the same block
                 if (currentGameMode === "fullHouse") {
-                    if (rowMarkedStatus.every(Boolean)) {
+                    const linesInThisBlock = Array.from(block.querySelectorAll(".bingo-row"))
+                        .filter(row => Array.from(row.querySelectorAll(".bingo-cell"))
+                        .every(cell => cell.dataset.marked === "true")).length;
+                    if (linesInThisBlock === 3) {
                         showBingo();
                         return;
                     }
                 }
+            }
+
+            // TWO LINES: any two lines, can be in different blocks
+            if (currentGameMode === "twoLines" && totalCompletedLines >= 2) {
+                showBingo();
+                return;
             }
         }
 
