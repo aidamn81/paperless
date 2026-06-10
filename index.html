@@ -3,71 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Index Page</title>
+    <title>🎀 Candy Bingo Login</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, sans-serif;
         }
-        h1, h2 {
-            color: #333;
+
+        body {
+            background: #000000;
+            background-image: radial-gradient(circle at top, #2b0b47 0%, #000000 70%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
         }
+
+        /* Neon glow effect */
+        @keyframes neonGlow {
+            0% { box-shadow: 0 0 5px #9d4edd, 0 0 10px #9d4edd, 0 0 20px #9d4edd; }
+            50% { box-shadow: 0 0 10px #c77dff, 0 0 20px #c77dff, 0 0 30px #c77dff; }
+            100% { box-shadow: 0 0 5px #9d4edd, 0 0 10px #9d4edd, 0 0 20px #9d4edd; }
+        }
+
+        h1 {
+            color: #ffffff;
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
+            text-align: center;
+            margin-bottom: 2rem;
+            text-shadow: 0 0 8px #c77dff, 0 0 15px #9d4edd;
+        }
+
+        /* Logo styling */
+        .logo {
+            max-width: clamp(120px, 30vw, 220px);
+            height: auto;
+            margin-bottom: 1.5rem;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Form container */
         #login-form, #admin-form {
-            width: 50%;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 5px;
+            width: 100%;
+            max-width: 420px;
+            padding: 2rem;
+            background: #0a001a;
+            border: 1px solid #4b1b78;
+            border-radius: 12px;
+            animation: neonGlow 3s infinite ease-in-out;
+            margin-bottom: 2rem;
         }
+
+        h2 {
+            color: #e0aaff;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            text-shadow: 0 0 6px #9d4edd;
+        }
+
         label {
             display: block;
-            margin-bottom: 5px;
-            color: #333;
+            margin-bottom: 0.5rem;
+            color: #d4b3ff;
+            font-weight: 500;
         }
-        input[type="text"], input[type="password"] {
+
+        input[type="text"] {
             width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 3px;
+            padding: 0.9rem 1rem;
+            margin-bottom: 1.2rem;
+            background: #120529;
+            border: 1px solid #6a2cac;
+            border-radius: 6px;
+            color: #ffffff;
+            font-size: 1rem;
+            outline: none;
+            transition: border 0.3s, box-shadow 0.3s;
         }
+
+        input[type="text"]:focus {
+            border-color: #c77dff;
+            box-shadow: 0 0 8px #9d4edd80;
+        }
+
+        input::placeholder {
+            color: #7a58a8;
+        }
+
         button[type="submit"] {
-            display: block;
             width: 100%;
-            padding: 10px;
-            background-color: #333;
-            color: #fff;
+            padding: 1rem;
+            background: linear-gradient(90deg, #7b2cbf, #9d4edd);
             border: none;
-            border-radius: 3px;
+            border-radius: 6px;
+            color: #ffffff;
+            font-size: 1.1rem;
+            font-weight: bold;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 5px #00000080;
         }
+
         button[type="submit"]:hover {
-            background-color: #555;
+            background: linear-gradient(90deg, #9d4edd, #c77dff);
+            box-shadow: 0 0 12px #c77dff;
+            transform: translateY(-1px);
         }
     </style>
 </head>
 <body>
-    <h1>Welcome to the Bingo Game</h1>
+    <h1>🎀 Candy Bingo 🎀</h1>
+
+    <!-- Logo at the top of login -->
     <div id="login-form">
-        <h2>Login</h2>
+        <img src="candy2.PNG" alt="Candy Bingo Logo" class="logo">
+        <h2>Player Login</h2>
         <form action="bingo.html" method="GET">
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" placeholder="Your name or team name">
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" placeholder="bingoqueen">
-            <button type="submit">Login</button>
+            <label for="name">Your Name / Team Name</label>
+            <input type="text" id="name" name="name" placeholder="e.g. Team Purple">
+            <button type="submit">Start Playing 🎉</button>
         </form>
     </div>
+
     <div id="admin-form">
-        <h2>Admin Login</h2>
+        <h2>Admin Access</h2>
         <form action="admin.html" method="GET">
-            <label for="admin-password">Password:</label>
-            <input type="password" id="admin-password" name="admin-password" placeholder="aidamn81">
-            <button type="submit">Login</button>
+            <label for="admin-password">Admin Password</label>
+            <input type="password" id="admin-password" name="admin-password" placeholder="Enter admin code">
+            <button type="submit">Enter Admin Panel</button>
         </form>
     </div>
 </body>
