@@ -15,6 +15,20 @@
             color: #ffffff;
             margin: 0;
             padding: 0.5rem;
+            position: relative;
+        }
+
+        /* Bingo Lady Image - Top Right Corner */
+        #bingoLady {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            width: clamp(80px, 15vw, 140px);
+            height: auto;
+            z-index: 10;
+            pointer-events: none; /* won't block taps/clicks */
+            opacity: 0.9;
+            border-radius: 8px;
         }
 
         /* Bingo dauber style */
@@ -142,6 +156,10 @@
     </style>
 </head>
 <body class="bg-black min-h-screen flex flex-col items-center">
+
+    <!-- Bingo Lady Image in Top Right -->
+    <img id="bingoLady" src="candy1.PNG" alt="Bingo Lady">
+
     <!-- Header -->
     <header class="bg-gray-900 shadow p-4 w-full max-w-3xl rounded-md mt-2">
         <div class="text-center">
