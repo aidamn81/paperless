@@ -20,7 +20,7 @@
             pointer-events: none;
         }
 
-        /* MUCH larger tap/click area */
+        /* Large tap/click area */
         .bingo-cell {
             min-width: 52px;
             min-height: 58px;
@@ -38,9 +38,11 @@
             color: #fff;
         }
 
+        /* Empty spaces = already marked */
         .empty {
-            background-color: #1a1a1a;
+            background-color: #2a2a2a;
             color: transparent;
+            opacity: 0.5;
         }
 
         .bingo-row {
@@ -70,6 +72,55 @@
             border-color: #2563eb;
             color: white;
         }
+
+        /* BINGO Popup */
+        #bingoPopup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+
+        .popup-content {
+            background: #111;
+            border: 3px solid #ffcc00;
+            padding: 3rem 5rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 0 40px #ff0000;
+        }
+
+        .popup-content h2 {
+            font-size: 4rem;
+            color: #ff0000;
+            font-weight: bold;
+            margin: 0;
+            text-shadow: 0 0 15px #ff8800;
+        }
+
+        .popup-content p {
+            font-size: 1.5rem;
+            margin-top: 1rem;
+            color: #fff;
+        }
+
+        .popup-content button {
+            margin-top: 2rem;
+            padding: 0.8rem 2rem;
+            font-size: 1.2rem;
+            background: #2563eb;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body class="bg-black min-h-screen flex flex-col items-center">
@@ -92,14 +143,22 @@
         <div id="currentModeDisplay" class="mt-4 text-xl font-bold text-green-400 text-center">Not selected</div>
     </section>
 
-    <!-- Bingo Card Area - Centered -->
+    <!-- Bingo Card Area -->
     <section class="mt-6 mb-8 w-full max-w-3xl flex flex-col items-center">
         <h3 class="text-center text-xl font-semibold mb-4">Your Bingo Sheet</h3>
         <div id="bingoCard" class="flex flex-col items-center gap-2"></div>
     </section>
 
+    <!-- BINGO Popup -->
+    <div id="bingoPopup">
+        <div class="popup-content">
+            <h2>🎉 BINGO! 🎉</h2>
+            <p>You’ve won this round!</p>
+            <button onclick="closePopup()">Continue</button>
+        </div>
+    </div>
+
     <script>
-        // Get player name from login (URL parameter)
         const urlParams = new URLSearchParams(window.location.search);
         const playerName = urlParams.get("name") || "Guest Player";
         document.getElementById("playerInfo").textContent = `Player: ${playerName}`;
@@ -111,7 +170,7 @@
             fullHouse: "FULL HOUSE"
         };
 
-        // Generate one standard UK 90-ball block (3 rows × 9 columns, 5 numbers per row)
+        // Generate one UK 90-ball block
         function generateBingoBlock() {
             const columns = Array.from({ length: 9 }, (_, i) => {
                 const start = i * 10 + 1;
@@ -133,33 +192,33 @@
             return block;
         }
 
-        // Helper: shuffle array
         function shuffleArray(arr) {
             return [...arr].sort(() => Math.random() - 0.5);
         }
 
-        // Render 5 separate blocks stacked and centered
         function renderAllBlocks() {
             const container = document.getElementById("bingoCard");
             container.innerHTML = "";
 
-            // Create 5 unique blocks
             for (let b = 1; b <= 5; b++) {
                 const blockData = generateBingoBlock();
                 const blockDiv = document.createElement("div");
                 blockDiv.className = "bingo-block";
+                blockDiv.dataset.block = b;
                 blockDiv.innerHTML = `<div class="text-center text-gray-400 text-sm mb-2">Block ${b}</div>`;
 
-                blockData.forEach(row => {
+                blockData.forEach((numArr, rowIndex) => {
                     const rowDiv = document.createElement("div");
                     rowDiv.className = "bingo-row";
+                    rowDiv.dataset.row = rowIndex;
 
-                    row.forEach(num => {
+                    numArr.forEach(num => {
                         const cell = document.createElement("div");
-                        cell.className = `bingo-cell ${num === null ? "empty" : ""}`;
+                        const isEmpty = num === null;
+                        cell.className = `bingo-cell ${isEmpty ? "empty" : ""}`;
                         cell.textContent = num || "";
-                        cell.dataset.marked = "false";
-                        cell.addEventListener("click", () => markCell(cell));
+                        cell.dataset.marked = isEmpty ? "true" : "false"; // empty = already marked
+                        if (!isEmpty) cell.addEventListener("click", () => markCell(cell));
                         rowDiv.appendChild(cell);
                     });
 
@@ -170,14 +229,63 @@
             }
         }
 
-        // Mark cell permanently
         function markCell(cell) {
             if (cell.dataset.marked === "true") return;
             cell.classList.add("marked");
             cell.dataset.marked = "true";
+            checkForWin();
         }
 
-        // Set game mode
+        function checkForWin() {
+            if (!currentGameMode) return;
+
+            const blocks = document.querySelectorAll(".bingo-block");
+
+            for (const block of blocks) {
+                const rows = block.querySelectorAll(".bingo-row");
+                const rowMarkedStatus = [];
+
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll(".bingo-cell");
+                    const allMarked = Array.from(cells).every(c => c.dataset.marked === "true");
+                    rowMarkedStatus.push(allMarked);
+                });
+
+                // ONE LINE: any single full row
+                if (currentGameMode === "oneLine") {
+                    if (rowMarkedStatus.includes(true)) {
+                        showBingo();
+                        return;
+                    }
+                }
+
+                // TWO LINES: any two full rows in same block
+                if (currentGameMode === "twoLines") {
+                    const completedRows = rowMarkedStatus.filter(Boolean).length;
+                    if (completedRows >= 2) {
+                        showBingo();
+                        return;
+                    }
+                }
+
+                // FULL HOUSE: all 3 rows complete in one block
+                if (currentGameMode === "fullHouse") {
+                    if (rowMarkedStatus.every(Boolean)) {
+                        showBingo();
+                        return;
+                    }
+                }
+            }
+        }
+
+        function showBingo() {
+            document.getElementById("bingoPopup").style.display = "flex";
+        }
+
+        function closePopup() {
+            document.getElementById("bingoPopup").style.display = "none";
+        }
+
         function setGameMode(mode, label) {
             currentGameMode = mode;
             document.getElementById("currentModeDisplay").textContent = `Current Round: ${label}`;
@@ -185,7 +293,6 @@
             document.getElementById(`mode${mode.charAt(0).toUpperCase() + mode.slice(1)}`).classList.add("game-mode-active");
         }
 
-        // Initialise
         window.addEventListener("load", () => {
             renderAllBlocks();
 
