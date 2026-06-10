@@ -3,43 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paperless Bingo</title>
+    <title>Index Page</title>
     <style>
-        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .grid { display: grid; grid-template-columns: repeat(5, 60px); gap: 10px; margin-top: 20px; }
-        .cell { width: 60px; height: 60px; border: 2px solid #333; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; }
-        .marked { background-color: #ffcc00; }
-        #controls { margin-top: 20px; }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        #login-form, #admin-form {
+            width: 50%;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        button[type="submit"] {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button[type="submit"]:hover {
+            background-color: #555;
+        }
     </style>
 </head>
 <body>
-
-    <h1>Bingo Card</h1>
-    <div class="grid" id="bingoGrid"></div>
-
-    <div id="controls">
-        <button onclick="generateBoard()">New Card</button>
-        <button onclick="resetBoard()">Reset</button>
+    <h1>Welcome to the Bingo Game</h1>
+    <div id="login-form">
+        <h2>Login</h2>
+        <form action="bingo.html" method="GET">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" placeholder="Your name or team name">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" placeholder="bingoqueen">
+            <button type="submit">Login</button>
+        </form>
     </div>
-
-    <script>
-        function generateBoard() {
-            const grid = document.getElementById('bingoGrid');
-            grid.innerHTML = '';
-            for (let i = 0; i < 25; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'cell';
-                cell.innerText = Math.floor(Math.random() * 75) + 1;
-                cell.onclick = () => cell.classList.toggle('marked');
-                grid.appendChild(cell);
-            }
-        }
-        
-        function resetBoard() {
-            document.querySelectorAll('.cell').forEach(c => c.classList.remove('marked'));
-        }
-
-        generateBoard();
-    </script>
+    <div id="admin-form">
+        <h2>Admin Login</h2>
+        <form action="admin.html" method="GET">
+            <label for="admin-password">Password:</label>
+            <input type="password" id="admin-password" name="admin-password" placeholder="aidamn81">
+            <button type="submit">Login</button>
+        </form>
+    </div>
 </body>
 </html>
