@@ -5,13 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎀 Candy Bingo Login</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
         body {
             background: #000000;
             background-image: radial-gradient(circle at top, #2b0b47 0%, #000000 70%);
@@ -23,122 +17,89 @@
             padding: 2rem 1rem;
         }
 
-        /* Neon glow effect */
         @keyframes neonGlow {
-            0% { box-shadow: 0 0 5px #9d4edd, 0 0 10px #9d4edd, 0 0 20px #9d4edd; }
-            50% { box-shadow: 0 0 10px #c77dff, 0 0 20px #c77dff, 0 0 30px #c77dff; }
-            100% { box-shadow: 0 0 5px #9d4edd, 0 0 10px #9d4edd, 0 0 20px #9d4edd; }
+            0% { box-shadow: 0 0 5px #9d4edd, 0 0 10px #9d4edd; }
+            50% { box-shadow: 0 0 10px #c77dff, 0 0 20px #c77dff; }
+            100% { box-shadow: 0 0 5px #9d4edd, 0 0 10px #9d4edd; }
         }
 
-        h1 {
-            color: #ffffff;
-            font-size: clamp(1.8rem, 5vw, 2.5rem);
-            text-align: center;
-            margin-bottom: 2rem;
-            text-shadow: 0 0 8px #c77dff, 0 0 15px #9d4edd;
-        }
+        h1 { color: #ffffff; font-size: 2.5rem; margin-bottom: 2rem; text-shadow: 0 0 8px #c77dff; }
+        .logo { max-width: 200px; margin-bottom: 1.5rem; display: block; margin-left: auto; margin-right: auto; }
+        
+        .form-box { width: 100%; max-width: 420px; padding: 2rem; background: #0a001a; border: 1px solid #4b1b78; border-radius: 12px; animation: neonGlow 3s infinite; }
+        h2 { color: #e0aaff; text-align: center; margin-bottom: 1.5rem; }
+        
+        label { display: block; margin-bottom: 0.5rem; color: #d4b3ff; }
+        input { width: 100%; padding: 0.9rem; margin-bottom: 1.2rem; background: #120529; border: 1px solid #6a2cac; border-radius: 6px; color: #ffffff; }
+        
+        button { width: 100%; padding: 1rem; background: linear-gradient(90deg, #7b2cbf, #9d4edd); border: none; border-radius: 6px; color: #ffffff; font-weight: bold; cursor: pointer; }
+        button:hover { background: linear-gradient(90deg, #9d4edd, #c77dff); }
 
-        /* Logo styling */
-        .logo {
-            max-width: clamp(120px, 30vw, 220px);
-            height: auto;
-            margin-bottom: 1.5rem;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        /* Form container */
-        #login-form, #admin-form {
-            width: 100%;
-            max-width: 420px;
-            padding: 2rem;
-            background: #0a001a;
-            border: 1px solid #4b1b78;
-            border-radius: 12px;
-            animation: neonGlow 3s infinite ease-in-out;
-            margin-bottom: 2rem;
-        }
-
-        h2 {
-            color: #e0aaff;
-            text-align: center;
-            margin-bottom: 1.5rem;
-            font-size: 1.5rem;
-            text-shadow: 0 0 6px #9d4edd;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #d4b3ff;
-            font-weight: 500;
-        }
-
-        input[type="text"] {
-            width: 100%;
-            padding: 0.9rem 1rem;
-            margin-bottom: 1.2rem;
-            background: #120529;
-            border: 1px solid #6a2cac;
-            border-radius: 6px;
-            color: #ffffff;
-            font-size: 1rem;
-            outline: none;
-            transition: border 0.3s, box-shadow 0.3s;
-        }
-
-        input[type="text"]:focus {
-            border-color: #c77dff;
-            box-shadow: 0 0 8px #9d4edd80;
-        }
-
-        input::placeholder {
-            color: #7a58a8;
-        }
-
-        button[type="submit"] {
-            width: 100%;
-            padding: 1rem;
-            background: linear-gradient(90deg, #7b2cbf, #9d4edd);
-            border: none;
-            border-radius: 6px;
-            color: #ffffff;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-shadow: 0 0 5px #00000080;
-        }
-
-        button[type="submit"]:hover {
-            background: linear-gradient(90deg, #9d4edd, #c77dff);
-            box-shadow: 0 0 12px #c77dff;
-            transform: translateY(-1px);
-        }
+        #admin-panel { display: none; }
     </style>
 </head>
 <body>
     <h1>🎀 Candy Bingo 🎀</h1>
 
-    <!-- Logo at the top of login -->
-    <div id="login-form">
+    <!-- Player Login -->
+    <div id="login-form" class="form-box">
         <img src="candy2.PNG" alt="Candy Bingo Logo" class="logo">
         <h2>Player Login</h2>
-        <form action="bingo.html" method="GET">
-            <label for="name">Your Name / Team Name</label>
-            <input type="text" id="name" name="name" placeholder="e.g. Team Purple">
-            <button type="submit">Start Playing 🎉</button>
-        </form>
+        <label>Event Password</label>
+        <input type="password" id="event-pass" placeholder="Enter provided code">
+        <label>Your Name / Team Name</label>
+        <input type="text" id="player-name" placeholder="e.g. Team Purple">
+        <button onclick="handlePlayerLogin()">Start Playing 🎉</button>
     </div>
 
-    <div id="admin-form">
+    <!-- Admin Section -->
+    <div id="admin-form" class="form-box" style="margin-top:20px">
         <h2>Admin Access</h2>
-        <form action="admin.html" method="GET">
-            <label for="admin-password">Admin Password</label>
-            <input type="password" id="admin-password" name="admin-password" placeholder="Enter admin code">
-            <button type="submit">Enter Admin Panel</button>
-        </form>
+        <input type="password" id="admin-input" placeholder="Admin Code">
+        <button onclick="handleAdminLogin()">Enter Admin Panel</button>
     </div>
+
+    <div id="admin-panel" class="form-box">
+        <h2>Update Event Password</h2>
+        <input type="text" id="new-event-pass" placeholder="Set new event password">
+        <button onclick="saveNewPassword()">Save Password</button>
+        <button onclick="location.reload()" style="background:#555; margin-top:10px">Back</button>
+    </div>
+
+    <script>
+        // Default password for event
+        let currentEventPassword = localStorage.getItem('bingoEventPass') || '1234';
+        const MASTER_ADMIN = '1981';
+
+        function handlePlayerLogin() {
+            const pass = document.getElementById('event-pass').value;
+            const name = document.getElementById('player-name').value;
+            if(pass === currentEventPassword && name) {
+                alert('Welcome ' + name + '! Redirecting to game...');
+                // window.location.href = 'bingo.html'; // Uncomment when your game page is ready
+            } else {
+                alert('Incorrect password or missing name!');
+            }
+        }
+
+        function handleAdminLogin() {
+            if(document.getElementById('admin-input').value === MASTER_ADMIN) {
+                document.getElementById('admin-form').style.display = 'none';
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'block';
+            } else {
+                alert('Invalid Admin Code');
+            }
+        }
+
+        function saveNewPassword() {
+            const val = document.getElementById('new-event-pass').value;
+            if(val) {
+                localStorage.setItem('bingoEventPass', val);
+                currentEventPassword = val;
+                alert('Password updated for next event!');
+            }
+        }
+    </script>
 </body>
 </html>
