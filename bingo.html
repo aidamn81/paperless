@@ -24,7 +24,6 @@
         .game-mode-active { background: linear-gradient(90deg, #7b2cbf, #9d4edd); border-color: #c77dff; color: white; }
         #onlinePlayers { max-height: 100px; overflow-y: auto; background: #120529; padding: 0.5rem; border-radius: 6px; margin-top: 0.5rem; font-size: 0.9rem; }
         
-        /* Popup Styling */
         #bingoPopup { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 999; }
         .popup-box { background: #0a001a; border: 3px solid #c77dff; padding: 2rem; border-radius: 20px; text-align: center; box-shadow: 0 0 20px #9d4edd; }
     </style>
@@ -65,6 +64,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         const playerName = (urlParams.get("name") || "Guest").trim();
         let currentMode = null;
+        let hasWon = false;
         document.getElementById("playerInfo").textContent = `Playing as: ${playerName}`;
 
         function seededRandom(seed) { let s = seed; return function() { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; } }
@@ -72,12 +72,13 @@
 
         function setMode(mode) {
             currentMode = mode;
+            hasWon = false;
             document.getElementById('modeStatus').textContent = `Round: ${mode.toUpperCase()}`;
             document.querySelectorAll('.game-mode').forEach(b => b.classList.toggle('game-mode-active', b.textContent.replace(/\s/g,'').toLowerCase() === mode.toLowerCase()));
         }
 
         function checkWin() {
-            if(!currentMode) return;
+            if(!currentMode || hasWon) return;
             const blocks = document.querySelectorAll('.bingo-block');
             let totalCompletedLines = 0;
             let fullHouseAchieved = false;
@@ -91,10 +92,13 @@
 
             let win = false;
             if (currentMode === 'oneLine' && totalCompletedLines >= 1) win = true;
-            if (currentMode === 'twoLines' && totalCompletedLines >= 2) win = true;
-            if (currentMode === 'fullHouse' && fullHouseAchieved) win = true;
+            else if (currentMode === 'twoLines' && totalCompletedLines >= 2) win = true;
+            else if (currentMode === 'fullHouse' && fullHouseAchieved) win = true;
 
-            if(win) document.getElementById('bingoPopup').style.display = 'flex';
+            if(win) {
+                hasWon = true;
+                document.getElementById('bingoPopup').style.display = 'flex';
+            }
         }
 
         function refreshSheet() { localStorage.removeItem(`seed_${playerName}`); localStorage.removeItem(`marked_${playerName}`); window.location.reload(); }
