@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title> 👠Candy HEALS's Bingo</title>
+    <title>👠 Candy HEALS's Bingo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         * { box-sizing: border-box; }
@@ -23,7 +23,10 @@
         .game-mode { background: #120529; border: 1px solid #6a2cac; color: #e0aaff; margin: 0.2rem; }
         .game-mode-active { background: linear-gradient(90deg, #7b2cbf, #9d4edd); border-color: #c77dff; color: white; }
         #onlinePlayers { max-height: 100px; overflow-y: auto; background: #120529; padding: 0.5rem; border-radius: 6px; margin-top: 0.5rem; font-size: 0.9rem; }
-        #bingoPopup { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 999; }
+        
+        /* Popup Styling */
+        #bingoPopup { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 999; }
+        .popup-box { background: #0a001a; border: 3px solid #c77dff; padding: 2rem; border-radius: 20px; text-align: center; box-shadow: 0 0 20px #9d4edd; }
     </style>
 </head>
 <body class="bg-black min-h-screen flex flex-col items-center">
@@ -52,9 +55,9 @@
     </section>
 
     <div id="bingoPopup" onclick="this.style.display='none'">
-        <div class="bg-[#0a001a] border-2 border-[#c77dff] p-8 rounded-lg text-center">
-            <h2 class="text-4xl text-[#c77dff] font-bold">BINGO!</h2>
-            <p>Congratulations you’re a winner!</p>
+        <div class="popup-box">
+            <h2 class="text-3xl text-[#c77dff] font-bold mb-2">BINGO!</h2>
+            <p class="text-white">Congratulations you’re a winner!</p>
         </div>
     </div>
 
@@ -64,7 +67,6 @@
         let currentMode = null;
         document.getElementById("playerInfo").textContent = `Playing as: ${playerName}`;
 
-        // Seeded Random
         function seededRandom(seed) { let s = seed; return function() { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; } }
         function getSeed() { const stored = localStorage.getItem(`seed_${playerName}`); if (stored) return parseInt(stored); const n = Math.floor(Math.random()*1000000); localStorage.setItem(`seed_${playerName}`, n); return n; }
 
@@ -77,14 +79,21 @@
         function checkWin() {
             if(!currentMode) return;
             const blocks = document.querySelectorAll('.bingo-block');
-            let win = false;
+            let totalCompletedLines = 0;
+            let fullHouseAchieved = false;
+
             blocks.forEach(block => {
                 const rows = Array.from(block.querySelectorAll('.bingo-row'));
-                const completedRows = rows.filter(r => Array.from(r.children).every(c => c.classList.contains('marked')));
-                if (currentMode === 'oneLine' && completedRows.length >= 1) win = true;
-                if (currentMode === 'twoLines' && completedRows.length >= 2) win = true;
-                if (currentMode === 'fullHouse' && completedRows.length === 3) win = true;
+                const completedInThisBlock = rows.filter(r => Array.from(r.children).every(c => c.classList.contains('marked'))).length;
+                totalCompletedLines += completedInThisBlock;
+                if (completedInThisBlock === 3) fullHouseAchieved = true;
             });
+
+            let win = false;
+            if (currentMode === 'oneLine' && totalCompletedLines >= 1) win = true;
+            if (currentMode === 'twoLines' && totalCompletedLines >= 2) win = true;
+            if (currentMode === 'fullHouse' && fullHouseAchieved) win = true;
+
             if(win) document.getElementById('bingoPopup').style.display = 'flex';
         }
 
@@ -117,11 +126,9 @@
             }
         }
 
-        // Online Players
         function syncPlayers() {
             let list = JSON.parse(localStorage.getItem('players') || '{}');
             list[playerName] = Date.now();
-            // Clean old
             Object.keys(list).forEach(k => { if(Date.now() - list[k] > 10000) delete list[k]; });
             localStorage.setItem('players', JSON.stringify(list));
             document.getElementById('onlinePlayers').innerHTML = Object.keys(list).map(p => `• ${p}`).join('<br>');
