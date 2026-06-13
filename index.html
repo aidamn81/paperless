@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CANDY HEALS'S BINGO Login</title>
-    <title> INSTA: @candyheals</title>
+    <title>CANDY HEALS'S BINGO | @candyheals</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
         body {
@@ -127,7 +126,8 @@
             const name = document.getElementById('name').value;
 
             if(inputPass === savedPass && name) {
-                window.location.href = 'bingo.html?name=' + encodeURIComponent(name);
+                // Redirect to the choice selection page
+                window.location.href = 'choose.html?name=' + encodeURIComponent(name);
             } else {
                 alert('Invalid password or name missing!');
             }
