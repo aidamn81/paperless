@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+    <style>
+        body { background: #0a001a; color: #fff; font-family: sans-serif; display: flex; justify-content: center; padding: 50px; }
+        .box { width: 100%; max-width: 400px; padding: 20px; border: 1px solid #4b1b78; border-radius: 10px; }
+        input, button { width: 100%; padding: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="box" id="auth-box">
+        <h2>Admin Login</h2>
+        <input type="password" id="master-pass" placeholder="Enter Master Password">
+        <button onclick="login()">Enter</button>
+    </div>
+
+    <div class="box" id="panel" style="display:none">
+        <h2>Change Event Password</h2>
+        <input type="text" id="new-pass" placeholder="New password for next event">
+        <button onclick="savePass()">Save New Password</button>
+        <button onclick="window.location.href='index.html'" style="background:#444">Back Home</button>
+    </div>
+
+    <script>
+        function login() {
+            if(document.getElementById('master-pass').value === '1981') {
+                document.getElementById('auth-box').style.display = 'none';
+                document.getElementById('panel').style.display = 'block';
+            } else {
+                alert('Wrong Master Password!');
+            }
+        }
+        function savePass() {
+            const val = document.getElementById('new-pass').value;
+            localStorage.setItem('bingoEventPass', val);
+            alert('Password updated to: ' + val);
+        }
+    </script>
+</body>
+</html>
