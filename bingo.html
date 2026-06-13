@@ -1,77 +1,113 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Candy Heals's Bingo Board
-    <title>INSTA: @candyheals </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title> 👠Candy HEALS's Bingo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: #000; color: #fff; display: flex; flex-direction: column; align-items: center; padding: 20px; font-family: sans-serif; }
-        .grid { display: grid; grid-template-columns: repeat(5, 60px); gap: 10px; margin: 20px 0; }
-        .cell { width: 60px; height: 60px; border: 2px solid #9d4edd; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; background: #0a001a; }
-        .marked { background: #9d4edd !important; color: #fff; }
-        button { padding: 10px 20px; background: #7b2cbf; border: none; color: white; cursor: pointer; border-radius: 5px; }
+        * { box-sizing: border-box; }
+        @keyframes neonGlow {
+            0% { box-shadow: 0 0 5px #9d4edd, 0 0 10px #9d4edd, 0 0 20px #9d4edd40; }
+            50% { box-shadow: 0 0 10px #c77dff, 0 0 20px #c77dff, 0 0 30px #c77dff60; }
+            100% { box-shadow: 0 0 5px #9d4edd, 0 0 10px #9d4edd, 0 0 20px #9d4edd40; }
+        }
+        body { background: #000000; background-image: radial-gradient(circle at top, #2b0b47 0%, #000000 70%); color: #ffffff; margin: 0; padding: 0.5rem; font-family: 'Segoe UI', Roboto, sans-serif; }
+        #bingoLady { position: fixed; top: 1rem; right: 1rem; width: clamp(80px, 15vw, 140px); height: auto; z-index: 10; pointer-events: none; opacity: 0.95; border-radius: 8px; }
+        .marked { background: rgba(199, 125, 255, 0.6) !important; border: 2px solid #c77dff !important; }
+        .bingo-cell { width: clamp(38px, 9vw, 52px); height: clamp(42px, 11vw, 58px); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: clamp(1rem, 3.5vw, 1.25rem); border: 1px solid #6a2cac; cursor: pointer; user-select: none; background: #120529; color: #e0aaff; }
+        .empty { background-color: #200b40; color: transparent; pointer-events: none; }
+        .bingo-row { display: flex; justify-content: center; gap: 1px; }
+        .bingo-block { width: fit-content; margin: 1rem auto; border: 2px solid #4b1b78; padding: 0.6rem; border-radius: 8px; background: #0a001a; animation: neonGlow 4s infinite ease-in-out; }
+        .block-title { text-align: center; color: #c77dff; font-size: 1rem; margin-bottom: 0.5rem; }
+        button { padding: 0.6rem 1.2rem; cursor: pointer; transition: all 0.2s; border-radius: 6px; }
+        .game-mode { background: #120529; border: 1px solid #6a2cac; color: #e0aaff; }
+        .game-mode-active { background: linear-gradient(90deg, #7b2cbf, #9d4edd); border-color: #c77dff; color: white; }
     </style>
 </head>
-<body>
+<body class="bg-black min-h-screen flex flex-col items-center">
 
-    <h2 id="player-display">Playing as: Loading...</h2>
-    <div class="grid" id="bingoGrid"></div>
-    <button onclick="clearAndRefresh()">Get New Card</button>
+    <img id="bingoLady" src="candy1.PNG" alt="Bingo Lady">
+
+    <header class="shadow p-4 w-full max-w-3xl rounded-md mt-2 bg-[#0a001a]">
+        <h1 class="text-xl font-bold text-center">🎀 Candy Bingo 🎀</h1>
+        <div id="playerInfo" class="text-center mt-2 text-[#c77dff]"></div>
+    </header>
+
+    <section class="mt-6 w-full max-w-3xl flex flex-col items-center">
+        <button onclick="refreshSheet()" class="mb-4 bg-red-900 px-6 py-2 rounded font-bold hover:bg-red-700">🔄 Refresh My Card</button>
+        <div id="bingoCard" class="flex flex-col items-center w-full"></div>
+    </section>
 
     <script>
-        // Get player name from URL
-        const params = new URLSearchParams(window.location.search);
-        const playerName = params.get('name') || 'Guest';
-        document.getElementById('player-display').innerText = `Playing as: ${playerName}`;
+        const urlParams = new URLSearchParams(window.location.search);
+        const playerName = (urlParams.get("name") || "Guest").trim();
+        document.getElementById("playerInfo").textContent = `Playing as: ${playerName}`;
 
-        // Simple seeded random number generator based on player name
+        // Seeded Random Generator
         function seededRandom(seed) {
-            let x = Math.sin(seed++) * 10000;
-            return x - Math.floor(x);
-        }
-
-        function generateBoard() {
-            const grid = document.getElementById('bingoGrid');
-            grid.innerHTML = '';
-            
-            // Create a unique seed based on the player's name
-            let seed = 0;
-            for (let i = 0; i < playerName.length; i++) seed += playerName.charCodeAt(i);
-            
-            // Get marked state from localStorage
-            const markedCells = JSON.parse(localStorage.getItem('marked_' + playerName)) || [];
-
-            for (let i = 0; i < 25; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'cell';
-                // Unique numbers 1-75
-                cell.innerText = Math.floor(seededRandom(seed + i) * 75) + 1;
-                
-                if (markedCells.includes(i)) cell.classList.add('marked');
-                
-                cell.onclick = () => {
-                    cell.classList.toggle('marked');
-                    saveState();
-                };
-                grid.appendChild(cell);
+            let s = seed;
+            return function() {
+                s = (s * 16807) % 2147483647;
+                return (s - 1) / 2147483646;
             }
         }
 
-        function saveState() {
-            const marked = [];
-            document.querySelectorAll('.cell').forEach((c, idx) => {
-                if (c.classList.contains('marked')) marked.push(idx);
-            });
-            localStorage.setItem('marked_' + playerName, JSON.stringify(marked));
+        function getSeed() {
+            const storedSeed = localStorage.getItem(`seed_${playerName}`);
+            if (storedSeed) return parseInt(storedSeed);
+            const newSeed = Math.floor(Math.random() * 1000000);
+            localStorage.setItem(`seed_${playerName}`, newSeed);
+            return newSeed;
         }
 
-        function clearAndRefresh() {
-            localStorage.removeItem('marked_' + playerName);
-            location.reload();
+        function refreshSheet() {
+            localStorage.removeItem(`seed_${playerName}`);
+            localStorage.removeItem(`marked_${playerName}`);
+            window.location.reload();
         }
 
-        generateBoard();
+        function renderAllBlocks() {
+            const container = document.getElementById("bingoCard");
+            const seed = getSeed();
+            const rng = seededRandom(seed);
+            
+            // Load marked state
+            const markedState = JSON.parse(localStorage.getItem(`marked_${playerName}`)) || {};
+
+            for (let b = 1; b <= 5; b++) {
+                const blockDiv = document.createElement("div");
+                blockDiv.className = "bingo-block";
+                blockDiv.innerHTML = `<div class="block-title">Block ${b}</div>`;
+
+                for (let r = 0; r < 3; r++) {
+                    const rowDiv = document.createElement("div");
+                    rowDiv.className = "bingo-row";
+                    for (let c = 0; c < 9; c++) {
+                        const cell = document.createElement("div");
+                        const cellId = `b${b}_r${r}_c${c}`;
+                        
+                        // Deterministic logic for numbers
+                        const num = Math.floor(rng() * 90) + 1; 
+                        cell.className = `bingo-cell`;
+                        cell.textContent = num;
+                        
+                        if (markedState[cellId]) cell.classList.add("marked");
+                        
+                        cell.onclick = () => {
+                            cell.classList.toggle("marked");
+                            markedState[cellId] = cell.classList.contains("marked");
+                            localStorage.setItem(`marked_${playerName}`, JSON.stringify(markedState));
+                        };
+                        rowDiv.appendChild(cell);
+                    }
+                    blockDiv.appendChild(rowDiv);
+                }
+                container.appendChild(blockDiv);
+            }
+        }
+
+        window.onload = renderAllBlocks;
     </script>
 </body>
 </html>
