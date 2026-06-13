@@ -1,467 +1,77 @@
 <!DOCTYPE html>
-<html lang="en-GB">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- Make it work properly on all mobile/tablet screens -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title> 👠Candy HEALS's Bingo</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Candy Heals's Bingo Board</title>
+    <title>INSTA: @candyheals /title>
     <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        /* Neon glow animation */
-        @keyframes neonGlow {
-            0% { box-shadow: 0 0 5px #9d4edd, 0 0 10px #9d4edd, 0 0 20px #9d4edd40; }
-            50% { box-shadow: 0 0 10px #c77dff, 0 0 20px #c77dff, 0 0 30px #c77dff60; }
-            100% { box-shadow: 0 0 5px #9d4edd, 0 0 10px #9d4edd, 0 0 20px #9d4edd40; }
-        }
-
-        body {
-            background: #000000;
-            background-image: radial-gradient(circle at top, #2b0b47 0%, #000000 70%);
-            color: #ffffff;
-            margin: 0;
-            padding: 0.5rem;
-            position: relative;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-        }
-
-        /* Bingo Lady Image - Top Right Corner */
-        #bingoLady {
-            position: fixed;
-            top: 1rem;
-            right: 1rem;
-            width: clamp(80px, 15vw, 140px);
-            height: auto;
-            z-index: 10;
-            pointer-events: none;
-            opacity: 0.95;
-            border-radius: 8px;
-        }
-
-        /* Bingo dauber style */
-        .marked {
-            background: rgba(199, 125, 255, 0.4);
-            border-radius: 50%;
-            box-shadow: 0 0 0 2px rgba(157, 78, 221, 0.3), 0 0 8px rgba(199, 125, 255, 0.5);
-            transition: all 0.15s ease;
-            pointer-events: none;
-        }
-
-        /* Responsive cell size */
-        .bingo-cell {
-            width: clamp(38px, 9vw, 52px);
-            height: clamp(42px, 11vw, 58px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: clamp(1rem, 3.5vw, 1.25rem);
-            border: 1px solid #6a2cac;
-            cursor: pointer;
-            user-select: none;
-            background: #120529;
-            color: #e0aaff;
-            transition: border 0.2s;
-        }
-
-        .bingo-cell:hover {
-            border-color: #c77dff;
-        }
-
-        .empty {
-            background-color: #200b40;
-            color: transparent;
-            opacity: 0.5;
-            pointer-events: none;
-        }
-
-        .bingo-row {
-            display: flex;
-            justify-content: center;
-            gap: 1px;
-        }
-
-        .bingo-block {
-            width: fit-content;
-            margin: 1rem auto;
-            border: 2px solid #4b1b78;
-            padding: 0.6rem;
-            border-radius: 8px;
-            background: #0a001a;
-            animation: neonGlow 4s infinite ease-in-out;
-        }
-
-        .block-title {
-            text-align: center;
-            color: #c77dff;
-            font-size: clamp(0.85rem, 3vw, 1rem);
-            margin-bottom: 0.5rem;
-            text-shadow: 0 0 4px #9d4edd;
-        }
-
-        .game-mode {
-            background: #120529;
-            border: 1px solid #6a2cac;
-            color: #e0aaff;
-            padding: 0.6rem 1.2rem;
-            font-size: clamp(0.9rem, 3vw, 1rem);
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .game-mode:hover {
-            border-color: #c77dff;
-            box-shadow: 0 0 6px #9d4edd40;
-        }
-
-        .game-mode-active {
-            background: linear-gradient(90deg, #7b2cbf, #9d4edd);
-            border-color: #c77dff;
-            color: white;
-            box-shadow: 0 0 10px #9d4edd80;
-        }
-
-        /* Shared style for sections */
-        header, section {
-            background: #0a001a;
-            border: 1px solid #4b1b78;
-            border-radius: 10px;
-            animation: neonGlow 5s infinite ease-in-out;
-        }
-
-        h1, h2, h3 {
-            color: #e0aaff;
-            text-shadow: 0 0 6px #9d4edd;
-        }
-
-        #playerInfo {
-            color: #c77dff;
-            font-weight: 500;
-        }
-
-        #currentModeDisplay {
-            color: #b388ff;
-            text-shadow: 0 0 5px #9d4edd;
-        }
-
-        /* 🆕 Online Players List */
-        #onlinePlayers {
-            max-height: 120px;
-            overflow-y: auto;
-            padding: 0.5rem;
-            background: #120529;
-            border-radius: 6px;
-            border: 1px solid #6a2cac;
-            color: #e0aaff;
-        }
-
-        /* BINGO Popup */
-        #bingoPopup {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            padding: 1rem;
-        }
-
-        .popup-content {
-            background: #0a001a;
-            border: 3px solid #c77dff;
-            padding: clamp(1.5rem, 5vw, 3rem) clamp(2rem, 8vw, 5rem);
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 0 30px #9d4edd, 0 0 60px #7b2cbf80;
-            width: 100%;
-            max-width: 420px;
-        }
-
-        .popup-content h2 {
-            font-size: clamp(2.5rem, 10vw, 4rem);
-            color: #c77dff;
-            font-weight: bold;
-            margin: 0;
-            text-shadow: 0 0 15px #9d4edd, 0 0 30px #7b2cbf;
-        }
-
-        .popup-content p {
-            font-size: clamp(1.1rem, 4vw, 1.5rem);
-            margin-top: 1rem;
-            color: #e0aaff;
-        }
-
-        .popup-content button {
-            margin-top: 2rem;
-            padding: 0.8rem 2rem;
-            font-size: clamp(1rem, 3.5vw, 1.2rem);
-            background: linear-gradient(90deg, #7b2cbf, #9d4edd);
-            border: none;
-            border-radius: 6px;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 0 8px #9d4edd60;
-        }
-
-        .popup-content button:hover {
-            background: linear-gradient(90deg, #9d4edd, #c77dff);
-            box-shadow: 0 0 15px #c77dff;
-        }
+        body { background: #000; color: #fff; display: flex; flex-direction: column; align-items: center; padding: 20px; font-family: sans-serif; }
+        .grid { display: grid; grid-template-columns: repeat(5, 60px); gap: 10px; margin: 20px 0; }
+        .cell { width: 60px; height: 60px; border: 2px solid #9d4edd; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; background: #0a001a; }
+        .marked { background: #9d4edd !important; color: #fff; }
+        button { padding: 10px 20px; background: #7b2cbf; border: none; color: white; cursor: pointer; border-radius: 5px; }
     </style>
 </head>
-<body class="bg-black min-h-screen flex flex-col items-center">
+<body>
 
-    <!-- Bingo Lady Image in Top Right -->
-    <img id="bingoLady" src="candy1.PNG" alt="Bingo Lady">
-
-    <!-- Header -->
-    <header class="shadow p-4 w-full max-w-3xl rounded-md mt-2">
-        <div class="text-center">
-            <h1 class="text-xl md:text-2xl font-bold">🎀 Candy Bingo 🎀</h1>
-            <div id="playerInfo" class="mt-2"></div>
-        </div>
-    </header>
-
-    <!-- 🆕 Online Players Section -->
-    <section class="shadow mt-4 p-4 w-full max-w-3xl rounded-md">
-        <h2 class="text-lg font-semibold mb-2 text-center">Currently Playing</h2>
-        <div id="onlinePlayers"></div>
-    </section>
-
-    <!-- Game Mode Selection -->
-    <section class="shadow mt-4 p-4 w-full max-w-3xl rounded-md">
-        <h2 class="text-lg font-semibold mb-3 text-center">Select Round Type:</h2>
-        <div class="flex flex-wrap justify-center gap-3">
-            <button id="modeOneLine" class="game-mode">ONE LINE</button>
-            <button id="modeTwoLines" class="game-mode">TWO LINES</button>
-            <button id="modeFullHouse" class="game-mode">FULL HOUSE</button>
-        </div>
-        <div id="currentModeDisplay" class="mt-4 text-xl font-bold text-center">Not selected</div>
-    </section>
-
-    <!-- Bingo Card Area -->
-    <section class="mt-6 mb-8 w-full max-w-3xl flex flex-col items-center">
-        <h3 class="text-center text-xl font-semibold mb-4">Your Bingo Sheet</h3>
-        <div id="bingoCard" class="flex flex-col items-center w-full"></div>
-    </section>
-
-    <!-- BINGO Popup -->
-    <div id="bingoPopup">
-        <div class="popup-content">
-            <h2>🎉 BINGO! 🎉</h2>
-            <p>You’ve won this round!</p>
-            <button onclick="closePopup()">Continue</button>
-        </div>
-    </div>
+    <h2 id="player-display">Playing as: Loading...</h2>
+    <div class="grid" id="bingoGrid"></div>
+    <button onclick="clearAndRefresh()">Get New Card</button>
 
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const playerName = (urlParams.get("name") || "Guest Player").trim();
-        document.getElementById("playerInfo").textContent = `You: ${playerName}`;
+        // Get player name from URL
+        const params = new URLSearchParams(window.location.search);
+        const playerName = params.get('name') || 'Guest';
+        document.getElementById('player-display').innerText = `Playing as: ${playerName}`;
 
-        let currentGameMode = null;
-        const gameModes = {
-            oneLine: "ONE LINE",
-            twoLines: "TWO LINES",
-            fullHouse: "FULL HOUSE"
-        };
-
-        // --------------------------
-        // 🆕 Online Players System
-        // --------------------------
-        function getPlayers() {
-            return JSON.parse(localStorage.getItem("bingoPlayers")) || [];
+        // Simple seeded random number generator based on player name
+        function seededRandom(seed) {
+            let x = Math.sin(seed++) * 10000;
+            return x - Math.floor(x);
         }
 
-        function savePlayers(players) {
-            localStorage.setItem("bingoPlayers", JSON.stringify(players));
-        }
+        function generateBoard() {
+            const grid = document.getElementById('bingoGrid');
+            grid.innerHTML = '';
+            
+            // Create a unique seed based on the player's name
+            let seed = 0;
+            for (let i = 0; i < playerName.length; i++) seed += playerName.charCodeAt(i);
+            
+            // Get marked state from localStorage
+            const markedCells = JSON.parse(localStorage.getItem('marked_' + playerName)) || [];
 
-        function addPlayer() {
-            if (!playerName || playerName === "Guest Player") return;
-            const players = getPlayers();
-            const timestamp = Date.now();
-            // Remove old entries older than 5 minutes
-            const filtered = players.filter(p => timestamp - p.lastSeen < 300000);
-            // Add or update current player
-            const existing = filtered.findIndex(p => p.name === playerName);
-            if (existing >= 0) {
-                filtered[existing].lastSeen = timestamp;
-            } else {
-                filtered.push({ name: playerName, lastSeen: timestamp });
-            }
-            savePlayers(filtered);
-            updatePlayerList();
-        }
-
-        function removePlayer() {
-            const players = getPlayers().filter(p => p.name !== playerName);
-            savePlayers(players);
-            updatePlayerList();
-        }
-
-        function updatePlayerList() {
-            const players = getPlayers().filter(p => Date.now() - p.lastSeen < 300000);
-            const listEl = document.getElementById("onlinePlayers");
-            if (players.length === 0) {
-                listEl.textContent = "No players online yet";
-            } else {
-                listEl.innerHTML = players.map(p => `• ${p.name}`).join("<br>");
+            for (let i = 0; i < 25; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                // Unique numbers 1-75
+                cell.innerText = Math.floor(seededRandom(seed + i) * 75) + 1;
+                
+                if (markedCells.includes(i)) cell.classList.add('marked');
+                
+                cell.onclick = () => {
+                    cell.classList.toggle('marked');
+                    saveState();
+                };
+                grid.appendChild(cell);
             }
         }
 
-        // Sync list across all open tabs/devices
-        window.addEventListener("storage", (e) => {
-            if (e.key === "bingoPlayers") updatePlayerList();
-        });
-
-        // Keep player active and update list every 30s
-        addPlayer();
-        setInterval(addPlayer, 30000);
-        // Remove player when closing/leaving
-        window.addEventListener("beforeunload", removePlayer);
-
-        // --------------------------
-        // Existing Bingo Game Logic
-        // --------------------------
-        function generateBingoBlock() {
-            const columns = Array.from({ length: 9 }, (_, i) => {
-                const start = i * 10 + 1;
-                const end = i === 8 ? 90 : start + 9;
-                let numbers = [];
-                for (let n = start; n <= end; n++) numbers.push(n);
-                return shuffleArray(numbers);
+        function saveState() {
+            const marked = [];
+            document.querySelectorAll('.cell').forEach((c, idx) => {
+                if (c.classList.contains('marked')) marked.push(idx);
             });
-
-            const block = [];
-            for (let row = 0; row < 3; row++) {
-                const rowData = Array(9).fill(null);
-                const filledPositions = shuffleArray([0,1,2,3,4,5,6,7,8]).slice(0, 5);
-                filledPositions.forEach(col => {
-                    rowData[col] = columns[col].pop();
-                });
-                block.push(rowData);
-            }
-            return block;
+            localStorage.setItem('marked_' + playerName, JSON.stringify(marked));
         }
 
-        function shuffleArray(arr) {
-            return [...arr].sort(() => Math.random() - 0.5);
+        function clearAndRefresh() {
+            localStorage.removeItem('marked_' + playerName);
+            location.reload();
         }
 
-        function renderAllBlocks() {
-            const container = document.getElementById("bingoCard");
-            container.innerHTML = "";
-
-            for (let b = 1; b <= 5; b++) {
-                const blockData = generateBingoBlock();
-                const blockDiv = document.createElement("div");
-                blockDiv.className = "bingo-block";
-                blockDiv.dataset.block = b;
-
-                const title = document.createElement("div");
-                title.className = "block-title";
-                title.textContent = `Block ${b}`;
-                blockDiv.appendChild(title);
-
-                blockData.forEach((numArr, rowIndex) => {
-                    const rowDiv = document.createElement("div");
-                    rowDiv.className = "bingo-row";
-                    rowDiv.dataset.row = rowIndex;
-
-                    numArr.forEach(num => {
-                        const isEmpty = num === null;
-                        const cell = document.createElement("div");
-                        cell.className = `bingo-cell ${isEmpty ? "empty" : ""}`;
-                        cell.textContent = num || "";
-                        cell.dataset.marked = isEmpty ? "true" : "false";
-                        if (!isEmpty) cell.addEventListener("click", () => markCell(cell));
-                        rowDiv.appendChild(cell);
-                    });
-
-                    blockDiv.appendChild(rowDiv);
-                });
-
-                container.appendChild(blockDiv);
-            }
-        }
-
-        function markCell(cell) {
-            if (cell.dataset.marked === "true") return;
-            cell.classList.add("marked");
-            cell.dataset.marked = "true";
-            checkForWin();
-        }
-
-        function checkForWin() {
-            if (!currentGameMode) return;
-
-            const blocks = document.querySelectorAll(".bingo-block");
-            let totalCompletedLines = 0;
-
-            for (const block of blocks) {
-                const rows = block.querySelectorAll(".bingo-row");
-                rows.forEach(row => {
-                    const allMarked = Array.from(row.querySelectorAll(".bingo-cell"))
-                        .every(cell => cell.dataset.marked === "true");
-                    if (allMarked) totalCompletedLines++;
-                });
-
-                if (currentGameMode === "oneLine" && totalCompletedLines >= 1) {
-                    showBingo();
-                    return;
-                }
-
-                if (currentGameMode === "fullHouse") {
-                    const linesInThisBlock = Array.from(block.querySelectorAll(".bingo-row"))
-                        .filter(row => Array.from(row.querySelectorAll(".bingo-cell"))
-                        .every(cell => cell.dataset.marked === "true")).length;
-                    if (linesInThisBlock === 3) {
-                        showBingo();
-                        return;
-                    }
-                }
-            }
-
-            if (currentGameMode === "twoLines" && totalCompletedLines >= 2) {
-                showBingo();
-                return;
-            }
-        }
-
-        function showBingo() {
-            document.getElementById("bingoPopup").style.display = "flex";
-        }
-
-        function closePopup() {
-            document.getElementById("bingoPopup").style.display = "none";
-        }
-
-        function setGameMode(mode, label) {
-            currentGameMode = mode;
-            document.getElementById("currentModeDisplay").textContent = `Current Round: ${label}`;
-            document.querySelectorAll(".game-mode").forEach(btn => btn.classList.remove("game-mode-active"));
-            document.getElementById(`mode${mode.charAt(0).toUpperCase() + mode.slice(1)}`).classList.add("game-mode-active");
-        }
-
-        window.addEventListener("load", () => {
-            renderAllBlocks();
-            updatePlayerList();
-
-            document.getElementById("modeOneLine").addEventListener("click", () => setGameMode("oneLine", gameModes.oneLine));
-            document.getElementById("modeTwoLines").addEventListener("click", () => setGameMode("twoLines", gameModes.twoLines));
-            document.getElementById("modeFullHouse").addEventListener("click", () => setGameMode("fullHouse", gameModes.fullHouse));
-        });
+        generateBoard();
     </script>
 </body>
 </html>
