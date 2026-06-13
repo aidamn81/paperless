@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎀 Choose Your Game</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+        body {
+            background: #000000;
+            background-image: radial-gradient(circle at top, #2b0b47 0%, #000000 70%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        @keyframes neonGlow {
+            0% { box-shadow: 0 0 5px #9d4edd, 0 0 10px #9d4edd, 0 0 20px #9d4edd40; }
+            50% { box-shadow: 0 0 10px #c77dff, 0 0 20px #c77dff, 0 0 30px #c77dff60; }
+            100% { box-shadow: 0 0 5px #9d4edd, 0 0 10px #9d4edd, 0 0 20px #9d4edd40; }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+            padding: 2rem;
+            background: #0a001a;
+            border: 1px solid #4b1b78;
+            border-radius: 12px;
+            animation: neonGlow 3s infinite ease-in-out;
+            text-align: center;
+        }
+
+        h1 { color: #ffffff; margin-bottom: 2rem; text-shadow: 0 0 8px #c77dff; }
+        
+        button {
+            width: 100%;
+            padding: 1.2rem;
+            margin: 0.8rem 0;
+            background: linear-gradient(90deg, #7b2cbf, #9d4edd);
+            border: none;
+            border-radius: 6px;
+            color: #ffffff;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(90deg, #9d4edd, #c77dff);
+            box-shadow: 0 0 12px #c77dff;
+        }
+
+        .logo { max-width: 150px; margin-bottom: 1.5rem; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <img src="candy2.PNG" alt="Candy Bingo Logo" class="logo">
+        <h1>Select Game</h1>
+        <button onclick="goTo('bingo.html')">NUMERAL BINGO</button>
+        <button onclick="goTo('musical.html')">MUSICAL BINGO</button>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const name = urlParams.get('name') || 'Guest';
+
+        function goTo(page) {
+            window.location.href = `${page}?name=${encodeURIComponent(name)}`;
+        }
+    </script>
+</body>
+</html>
