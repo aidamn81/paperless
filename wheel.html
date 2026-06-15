@@ -5,23 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Candy's Neon Wheel</title>
     <style>
-        body { background: #000; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: sans-serif; overflow: hidden; }
-        #wheel-container { position: relative; display: flex; flex-direction: column; align-items: center; }
-        canvas { cursor: grab; filter: drop-shadow(0 0 15px #9d4edd); touch-action: none; border-radius: 50%; max-width: 90vw; }
+        body { background: #000; color: #fff; display: flex; flex-direction: column; align-items: center; min-height: 100vh; font-family: sans-serif; overflow: hidden; margin: 0; padding-top: 20px; }
+        
+        /* Header Layout */
+        #header-row { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; max-width: 800px; padding: 0 20px; }
+        .left-menu { display: flex; flex-direction: column; gap: 10px; }
+        .logo-placeholder { width: 120px; height: 120px; border: 2px dashed #4b1b78; display: flex; align-items: center; justify-content: center; color: #4b1b78; border-radius: 8px; }
+        
+        /* Neon Buttons */
+        .neon-btn { background: #0a001a; border: 1px solid #9d4edd; color: #fff; padding: 8px 16px; border-radius: 6px; cursor: pointer; text-shadow: 0 0 5px #9d4edd; box-shadow: 0 0 10px #9d4edd; transition: 0.3s; }
+        .neon-btn:hover { background: #9d4edd; }
+
+        /* Wheel Area */
+        #wheel-container { position: relative; display: flex; flex-direction: column; align-items: center; margin-top: 20px; }
+        canvas { cursor: grab; filter: drop-shadow(0 0 15px #9d4edd); touch-action: none; border-radius: 50%; max-width: 80vw; }
         #arrow { width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 30px solid #c77dff; margin-bottom: 10px; filter: drop-shadow(0 0 5px #c77dff); }
-        #admin-btn { margin-top: 1rem; color: #4b1b78; cursor: pointer; font-size: 0.8rem; text-decoration: underline; }
+        
+        /* Admin Panel */
         #admin-panel { margin-top: 1rem; background: #0a001a; padding: 1rem; border: 1px solid #4b1b78; border-radius: 8px; display: none; text-align: center; }
         input { background: #120529; border: 1px solid #6a2cac; color: white; padding: 0.5rem; width: 250px; margin-bottom: 0.5rem; }
-        button { background: linear-gradient(90deg, #7b2cbf, #9d4edd); color: white; border: none; padding: 0.5rem 1rem; cursor: pointer; border-radius: 4px; }
     </style>
 </head>
 <body>
+
+    <div id="header-row">
+        <div class="left-menu">
+            <button class="neon-btn" onclick="document.getElementById('admin-panel').style.display = (document.getElementById('admin-panel').style.display === 'block' ? 'none' : 'block')">ADMIN SETTINGS</button>
+            <button class="neon-btn" onclick="window.location.href='choose.html'">HOME</button>
+        </div>
+        <div class="logo-placeholder">LOGO</div>
+    </div>
+
     <div id="wheel-container">
         <div id="arrow"></div>
         <canvas id="wheel" width="400" height="400"></canvas>
     </div>
-    
-    <div id="admin-btn" onclick="document.getElementById('admin-panel').style.display = (document.getElementById('admin-panel').style.display === 'block' ? 'none' : 'block')">Admin Settings</div>
     
     <div id="admin-panel">
         <h3>Update Prizes</h3>
