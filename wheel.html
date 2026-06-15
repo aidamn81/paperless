@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CANDY HEALS's SPIN THE WHEEL</title>
+    <title>Candy's Neon Wheel</title>
     <style>
         body { background: #000; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: sans-serif; overflow: hidden; }
         #wheel-container { position: relative; display: flex; flex-direction: column; align-items: center; }
         canvas { cursor: grab; filter: drop-shadow(0 0 15px #9d4edd); touch-action: none; border-radius: 50%; max-width: 90vw; }
         #arrow { width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 30px solid #c77dff; margin-bottom: 10px; filter: drop-shadow(0 0 5px #c77dff); }
-        #admin-btn { margin-top: 1rem; color: #4b1b78; cursor: pointer; font-size: 0.8rem; }
+        #admin-btn { margin-top: 1rem; color: #4b1b78; cursor: pointer; font-size: 0.8rem; text-decoration: underline; }
         #admin-panel { margin-top: 1rem; background: #0a001a; padding: 1rem; border: 1px solid #4b1b78; border-radius: 8px; display: none; text-align: center; }
-        input { background: #120529; border: 1px solid #6a2cac; color: white; padding: 0.5rem; width: 250px; }
+        input { background: #120529; border: 1px solid #6a2cac; color: white; padding: 0.5rem; width: 250px; margin-bottom: 0.5rem; }
         button { background: linear-gradient(90deg, #7b2cbf, #9d4edd); color: white; border: none; padding: 0.5rem 1rem; cursor: pointer; border-radius: 4px; }
     </style>
 </head>
@@ -21,7 +21,7 @@
         <canvas id="wheel" width="400" height="400"></canvas>
     </div>
     
-    <div id="admin-btn" onclick="document.getElementById('admin-panel').style.display = 'block'">Admin Settings</div>
+    <div id="admin-btn" onclick="document.getElementById('admin-panel').style.display = (document.getElementById('admin-panel').style.display === 'block' ? 'none' : 'block')">Admin Settings</div>
     
     <div id="admin-panel">
         <h3>Update Prizes</h3>
@@ -72,23 +72,36 @@
         function drawWheel() {
             const arc = Math.PI * 2 / prizes.length;
             ctx.clearRect(0, 0, 400, 400);
+            
             prizes.forEach((p, i) => {
+                const startAngle = i * arc + angle;
+                const endAngle = (i + 1) * arc + angle;
+                const midAngle = startAngle + arc / 2;
+
                 ctx.beginPath();
                 ctx.fillStyle = colors[i % colors.length];
                 ctx.moveTo(200, 200);
-                ctx.arc(200, 200, 180, i * arc + angle, (i + 1) * arc + angle);
+                ctx.arc(200, 200, 180, startAngle, endAngle);
+                ctx.lineTo(200, 200);
                 ctx.fill();
                 
                 ctx.save();
                 ctx.fillStyle = "#fff";
                 ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
                 ctx.font = "bold 16px Arial";
-                // Positions text horizontally relative to wheel rotation
-                let textAngle = i * arc + angle + arc/2;
-                ctx.translate(200 + Math.cos(textAngle) * 100, 200 + Math.sin(textAngle) * 100);
+                ctx.translate(200, 200);
+                ctx.rotate(midAngle);
+                ctx.translate(100, 0);
+                
+                if (midAngle > Math.PI / 2 && midAngle < 3 * Math.PI / 2) {
+                    ctx.rotate(Math.PI);
+                }
+                
                 ctx.fillText(p, 0, 0);
                 ctx.restore();
             });
+            
             angle += speed;
             speed *= 0.98;
             requestAnimationFrame(drawWheel);
@@ -98,6 +111,7 @@
         canvas.onpointerdown = () => { isDragging = true; speed = 0; };
         canvas.onpointermove = (e) => { if(isDragging) angle += 0.1; };
         canvas.onpointerup = () => { isDragging = false; speed = 0.5; };
+        
         loadPrizes();
     </script>
 </body>
