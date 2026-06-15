@@ -7,7 +7,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAQSRSJC11L7n5zYivGAWKZosW-emSIaos",
@@ -22,36 +22,39 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        // Auto-login as anonymous to maintain authorized state for database writes
+        let isAuthReady = false;
         signInAnonymously(auth).catch((error) => console.error("Auth failed:", error));
+        onAuthStateChanged(auth, (user) => { if (user) isAuthReady = true; });
 
         window.checkAndLogin = async () => {
+            if (!isAuthReady) { alert("Connecting to server..."); return; }
             const inputPass = document.getElementById('event-pass').value;
             const name = document.getElementById('name').value;
             try {
-                const docRef = doc(db, "settings", "gameConfig");
-                const docSnap = await getDoc(docRef);
+                const docSnap = await getDoc(doc(db, "settings", "gameConfig"));
                 if (docSnap.exists() && inputPass === docSnap.data().playerPass && name.trim() !== "") {
                     window.location.href = 'choose.html?name=' + encodeURIComponent(name);
                 } else {
                     alert('Invalid password or name missing!');
                 }
             } catch (e) {
-                alert("Error connecting to server. Please check your connection.");
+                alert("Error connecting to server. Check your connection or Firebase Rules.");
             }
         };
 
         window.updatePlayerPassword = async () => {
             const newPass = document.getElementById('new-player-pass').value;
-            if(newPass) {
+            const secret = prompt("Enter Admin Master Key:");
+            
+            if(secret === "CANDY2026") {
                 try {
-                    const docRef = doc(db, "settings", "gameConfig");
-                    // Using setDoc with { merge: true } creates the document if it's missing
-                    await setDoc(docRef, { playerPass: newPass }, { merge: true });
+                    await setDoc(doc(db, "settings", "gameConfig"), { playerPass: newPass }, { merge: true });
                     alert('Password updated successfully!');
                 } catch (e) {
-                    alert("Update failed. Make sure you are authorized. Error: " + e.message);
+                    alert("Update failed: " + e.message);
                 }
+            } else {
+                alert("Unauthorized access!");
             }
         };
     </script>
@@ -68,7 +71,7 @@
     </style>
 </head>
 <body>
-    <h1>🎀 Candy Bingo 🎀</h1>
+    <h1> BINGO WITH CANDY HEALS </h1>
     <div id="login-form">
         <img src="candy2.PNG" alt="Candy Logo" class="logo">
         <h2>Player Login</h2>
