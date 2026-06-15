@@ -6,7 +6,7 @@
     <title>CANDY HEALS'S BINGO | @candyheals</title>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
 
         const firebaseConfig = {
@@ -22,7 +22,7 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        // Auto-login as anonymous to get authorized for database writes
+        // Auto-login as anonymous to maintain authorized state for database writes
         signInAnonymously(auth).catch((error) => console.error("Auth failed:", error));
 
         window.checkAndLogin = async () => {
@@ -46,8 +46,9 @@
             if(newPass) {
                 try {
                     const docRef = doc(db, "settings", "gameConfig");
-                    await updateDoc(docRef, { playerPass: newPass });
-                    alert('Password updated in the cloud for all players!');
+                    // Using setDoc with { merge: true } creates the document if it's missing
+                    await setDoc(docRef, { playerPass: newPass }, { merge: true });
+                    alert('Password updated successfully!');
                 } catch (e) {
                     alert("Update failed. Make sure you are authorized. Error: " + e.message);
                 }
