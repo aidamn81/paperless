@@ -16,7 +16,7 @@
         #bingoLady { position: fixed; top: 1rem; right: 1rem; width: clamp(80px, 15vw, 140px); height: auto; z-index: 10; pointer-events: none; opacity: 0.95; border-radius: 8px; }
         .follow-logo { max-width: 120px; width: 100%; height: auto; margin: 0.5rem auto; cursor: pointer; transition: transform 0.2s; display: block; }
         .follow-logo:hover { transform: scale(1.05); }
-        .marked { background: rgba(199, 125, 255, 0.6) !important; border: 2px solid #c77dff !important; }
+        .marked { background: rgba(199, 125, 255, 0.6) !important; border: 2px solid #c77dff !important; pointer-events: none; }
         .bingo-cell { width: clamp(38px, 9vw, 52px); height: clamp(42px, 11vw, 58px); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: clamp(1rem, 3.5vw, 1.25rem); border: 1px solid #6a2cac; cursor: pointer; user-select: none; background: #120529; color: #e0aaff; }
         .empty { background-color: #200b40; cursor: default; }
         .bingo-row { display: flex; justify-content: center; gap: 1px; }
@@ -95,14 +95,12 @@
                 const rows = Array.from(block.querySelectorAll('.bingo-row'));
                 const completedInThisBlock = rows.filter(r => {
                     const cells = Array.from(r.children);
-                    // Only count non-empty cells towards a line completion
                     const nonEmptyCells = cells.filter(c => !c.classList.contains('empty'));
                     return nonEmptyCells.length > 0 && nonEmptyCells.every(c => c.classList.contains('marked'));
                 }).length;
                 
                 totalCompletedLines += completedInThisBlock;
                 
-                // Full house: all non-empty cells in the block must be marked
                 const allCells = Array.from(block.querySelectorAll('.bingo-cell'));
                 const markedNonEmpty = allCells.filter(c => !c.classList.contains('empty') && c.classList.contains('marked'));
                 const totalNonEmpty = allCells.filter(c => !c.classList.contains('empty'));
@@ -128,29 +126,39 @@
                 const blockDiv = document.createElement("div");
                 blockDiv.className = "bingo-block";
                 blockDiv.innerHTML = `<div class="block-title">Block ${b}</div>`;
+                
+                // Keep the same logic: generate grid with empty slots
+                let gridData = [];
+                for (let r = 0; r < 3; r++) {
+                    let rowPositions = [0, 1, 2, 3, 4, 5, 6, 7, 8].sort(() => rng() - 0.5);
+                    let rowEmpty = rowPositions.slice(0, 4);
+                    for (let c = 0; c < 9; c++) {
+                        gridData.push({ row: r, col: c, isEmpty: rowEmpty.includes(c), val: Math.floor(rng() * 90) + 1 });
+                    }
+                }
+
                 for (let r = 0; r < 3; r++) {
                     const rowDiv = document.createElement("div");
                     rowDiv.className = "bingo-row";
-                    
-                    // Create an array of 9 positions, pick 4 to be empty
-                    let positions = [0, 1, 2, 3, 4, 5, 6, 7, 8].sort(() => rng() - 0.5);
-                    let emptySlots = positions.slice(0, 4);
-
                     for (let c = 0; c < 9; c++) {
+                        const cellData = gridData.find(d => d.row === r && d.col === c);
                         const cell = document.createElement("div");
                         const id = `b${b}r${r}c${c}`;
-                        cell.className = "bingo-cell";
+                        cell.className = "bingo-cell" + (cellData.isEmpty ? " empty" : "");
                         
-                        if (emptySlots.includes(c)) {
-                            cell.classList.add('empty');
-                        } else {
-                            cell.textContent = Math.floor(rng() * 90) + 1;
+                        if (!cellData.isEmpty) {
+                            cell.textContent = cellData.val;
                             if (marked[id]) cell.classList.add("marked");
-                            cell.onclick = () => { cell.classList.toggle("marked"); marked[id] = cell.classList.contains("marked"); localStorage.setItem(`marked_${playerName}`, JSON.stringify(marked)); checkWin(); };
+                            cell.onclick = () => { 
+                                cell.classList.add("marked"); 
+                                marked[id] = true; 
+                                localStorage.setItem(`marked_${playerName}`, JSON.stringify(marked)); 
+                                checkWin(); 
+                            };
                         }
                         rowDiv.appendChild(cell);
                     }
-                    rowDiv.appendChild(rowDiv);
+                    blockDiv.appendChild(rowDiv);
                 }
                 container.appendChild(blockDiv);
             }
