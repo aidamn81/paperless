@@ -2,13 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Candy's Neon Wheel</title>
     <style>
-        body { background: #000; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: sans-serif; }
-        canvas { cursor: grab; filter: drop-shadow(0 0 15px #9d4edd); touch-action: none; }
-        #admin-panel { margin-top: 2rem; background: #0a001a; padding: 1rem; border: 1px solid #4b1b78; border-radius: 8px; }
-        input { background: #120529; border: 1px solid #6a2cac; color: white; padding: 0.5rem; }
-        button { background: #7b2cbf; color: white; border: none; padding: 0.5rem 1rem; cursor: pointer; }
+        body { background: #000; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: sans-serif; overflow: hidden; }
+        canvas { cursor: grab; filter: drop-shadow(0 0 15px #9d4edd); touch-action: none; border-radius: 50%; }
+        #admin-panel { margin-top: 1rem; background: #0a001a; padding: 1rem; border: 1px solid #4b1b78; border-radius: 8px; text-align: center; }
+        input { background: #120529; border: 1px solid #6a2cac; color: white; padding: 0.5rem; width: 250px; }
+        button { background: linear-gradient(90deg, #7b2cbf, #9d4edd); color: white; border: none; padding: 0.5rem 1rem; cursor: pointer; border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -16,7 +17,7 @@
     
     <div id="admin-panel">
         <h3>Admin: Update Prizes</h3>
-        <input type="text" id="prizeInput" placeholder="Comma separated prizes">
+        <input type="text" id="prizeInput" placeholder="Prize 1, Prize 2, Prize 3">
         <button onclick="updatePrizes()">Save Prizes</button>
     </div>
 
@@ -24,30 +25,39 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-        // Use your existing firebaseConfig
-        const firebaseConfig = { /* ... paste your config here ... */ };
+        const firebaseConfig = {
+            apiKey: "AIzaSyAQSRSJC11L7n5zYivGAWKZosW-emSIaos",
+            authDomain: "paperlesscandy.firebaseapp.com",
+            projectId: "paperlesscandy",
+            storageBucket: "paperlesscandy.firebasestorage.app",
+            messagingSenderId: "231190762242",
+            appId: "1:231190762242:web:adc945167257b368eca81b"
+        };
+        
         const db = getFirestore(initializeApp(firebaseConfig));
         
-        let prizes = [];
+        let prizes = ["SPIN", "DRINK", "CANDY", "WIN"]; // Default if DB is empty
         const canvas = document.getElementById('wheel');
         const ctx = canvas.getContext('2d');
         let angle = 0;
+        let speed = 0;
 
         async function loadPrizes() {
-            const docSnap = await getDoc(doc(db, "wheel", "prizes"));
-            if (docSnap.exists()) {
-                prizes = docSnap.data().list;
-                drawWheel();
-            }
+            try {
+                const docSnap = await getDoc(doc(db, "wheel", "prizes"));
+                if (docSnap.exists()) { prizes = docSnap.data().list; }
+            } catch (e) { console.log("Using local defaults"); }
+            drawWheel();
         }
 
         window.updatePrizes = async () => {
             const input = document.getElementById('prizeInput').value;
-            const newPrizes = input.split(',').map(s => s.trim());
-            await setDoc(doc(db, "wheel", "prizes"), { list: newPrizes });
-            prizes = newPrizes;
-            drawWheel();
-            alert("Prizes updated!");
+            if(input) {
+                const newPrizes = input.split(',').map(s => s.trim());
+                await setDoc(doc(db, "wheel", "prizes"), { list: newPrizes });
+                prizes = newPrizes;
+                alert("Prizes updated!");
+            }
         };
 
         function drawWheel() {
@@ -59,16 +69,25 @@
                 ctx.moveTo(200, 200);
                 ctx.arc(200, 200, 180, i * arc + angle, (i + 1) * arc + angle);
                 ctx.fill();
+                ctx.save();
                 ctx.fillStyle = "#fff";
-                ctx.fillText(p, 200 + Math.cos(i * arc + angle + arc/2) * 100, 200 + Math.sin(i * arc + angle + arc/2) * 100);
+                ctx.textAlign = "center";
+                ctx.translate(200 + Math.cos(i * arc + angle + arc/2) * 120, 200 + Math.sin(i * arc + angle + arc/2) * 120);
+                ctx.rotate(i * arc + angle + arc/2 + Math.PI/2);
+                ctx.fillText(p, 0, 0);
+                ctx.restore();
             });
+            
+            // Spin animation
+            angle += speed;
+            speed *= 0.98; // Friction
+            requestAnimationFrame(drawWheel);
         }
 
-        // Simple spin logic
-        let isSpinning = false;
-        canvas.onpointermove = (e) => { if(isSpinning) angle += 0.1; drawWheel(); };
-        canvas.onpointerdown = () => isSpinning = true;
-        canvas.onpointerup = () => isSpinning = false;
+        let isDragging = false;
+        canvas.onpointerdown = () => { isDragging = true; speed = 0; };
+        canvas.onpointermove = (e) => { if(isDragging) angle += 0.1; };
+        canvas.onpointerup = () => { isDragging = false; speed = 0.5; }; // Initial velocity after release
 
         loadPrizes();
     </script>
