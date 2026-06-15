@@ -71,7 +71,7 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const playerName = (urlParams.get("name") || "Guest").trim();
-        let currentMode = null;
+        let currentMode = localStorage.getItem(`music_mode_${playerName}`) || null;
         let hasWon = false;
         document.getElementById("playerInfo").textContent = `Playing as: ${playerName}`;
 
@@ -80,9 +80,15 @@
 
         function setMode(mode) {
             currentMode = mode;
+            localStorage.setItem(`music_mode_${playerName}`, mode);
             hasWon = false;
-            document.getElementById('modeStatus').textContent = `Round: ${mode.toUpperCase()}`;
-            document.querySelectorAll('.game-mode').forEach(b => b.classList.toggle('game-mode-active', b.textContent.replace(/\s/g,'').toLowerCase() === mode.toLowerCase()));
+            updateModeUI();
+        }
+
+        function updateModeUI() {
+            if (!currentMode) return;
+            document.getElementById('modeStatus').textContent = `Round: ${currentMode.toUpperCase()}`;
+            document.querySelectorAll('.game-mode').forEach(b => b.classList.toggle('game-mode-active', b.textContent.replace(/\s/g,'').toLowerCase() === currentMode.toLowerCase()));
         }
 
         function checkWin() {
@@ -167,7 +173,7 @@
             document.getElementById('onlinePlayers').innerHTML = Object.keys(list).map(p => `• ${p}`).join('<br>');
         }
         setInterval(syncPlayers, 3000);
-        window.onload = () => { renderAllBlocks(); syncPlayers(); };
+        window.onload = () => { renderAllBlocks(); updateModeUI(); syncPlayers(); };
     </script>
 </body>
 </html>
