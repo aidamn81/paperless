@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Candy's Neon Wheel</title>
+    <style>
+        body { background: #000; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: sans-serif; }
+        canvas { cursor: grab; filter: drop-shadow(0 0 15px #9d4edd); touch-action: none; }
+        #admin-panel { margin-top: 2rem; background: #0a001a; padding: 1rem; border: 1px solid #4b1b78; border-radius: 8px; }
+        input { background: #120529; border: 1px solid #6a2cac; color: white; padding: 0.5rem; }
+        button { background: #7b2cbf; color: white; border: none; padding: 0.5rem 1rem; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <canvas id="wheel" width="400" height="400"></canvas>
+    
+    <div id="admin-panel">
+        <h3>Admin: Update Prizes</h3>
+        <input type="text" id="prizeInput" placeholder="Comma separated prizes">
+        <button onclick="updatePrizes()">Save Prizes</button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+        // Use your existing firebaseConfig
+        const firebaseConfig = { /* ... paste your config here ... */ };
+        const db = getFirestore(initializeApp(firebaseConfig));
+        
+        let prizes = [];
+        const canvas = document.getElementById('wheel');
+        const ctx = canvas.getContext('2d');
+        let angle = 0;
+
+        async function loadPrizes() {
+            const docSnap = await getDoc(doc(db, "wheel", "prizes"));
+            if (docSnap.exists()) {
+                prizes = docSnap.data().list;
+                drawWheel();
+            }
+        }
+
+        window.updatePrizes = async () => {
+            const input = document.getElementById('prizeInput').value;
+            const newPrizes = input.split(',').map(s => s.trim());
+            await setDoc(doc(db, "wheel", "prizes"), { list: newPrizes });
+            prizes = newPrizes;
+            drawWheel();
+            alert("Prizes updated!");
+        };
+
+        function drawWheel() {
+            const arc = Math.PI * 2 / prizes.length;
+            ctx.clearRect(0, 0, 400, 400);
+            prizes.forEach((p, i) => {
+                ctx.beginPath();
+                ctx.fillStyle = i % 2 === 0 ? '#240046' : '#3c096c';
+                ctx.moveTo(200, 200);
+                ctx.arc(200, 200, 180, i * arc + angle, (i + 1) * arc + angle);
+                ctx.fill();
+                ctx.fillStyle = "#fff";
+                ctx.fillText(p, 200 + Math.cos(i * arc + angle + arc/2) * 100, 200 + Math.sin(i * arc + angle + arc/2) * 100);
+            });
+        }
+
+        // Simple spin logic
+        let isSpinning = false;
+        canvas.onpointermove = (e) => { if(isSpinning) angle += 0.1; drawWheel(); };
+        canvas.onpointerdown = () => isSpinning = true;
+        canvas.onpointerup = () => isSpinning = false;
+
+        loadPrizes();
+    </script>
+</body>
+</html>
