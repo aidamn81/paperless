@@ -4,114 +4,79 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CANDY HEALS'S BINGO | @candyheals</title>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAQSRSJC11L7n5zYivGAWKZosW-emSIaos",
+            authDomain: "paperlesscandy.firebaseapp.com",
+            projectId: "paperlesscandy",
+            storageBucket: "paperlesscandy.firebasestorage.app",
+            messagingSenderId: "231190762242",
+            appId: "1:231190762242:web:adc945167257b368eca81b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Make functions available globally for HTML buttons
+        window.checkAndLogin = async () => {
+            const inputPass = document.getElementById('event-pass').value;
+            const name = document.getElementById('name').value;
+            
+            try {
+                const docRef = doc(db, "settings", "gameConfig");
+                const docSnap = await getDoc(docRef);
+                
+                if (docSnap.exists() && inputPass === docSnap.data().playerPass && name.trim() !== "") {
+                    window.location.href = 'choose.html?name=' + encodeURIComponent(name);
+                } else {
+                    alert('Invalid password or name missing!');
+                }
+            } catch (e) {
+                alert("Error connecting to server. Please check your connection.");
+            }
+        };
+
+        window.updatePlayerPassword = async () => {
+            const newPass = document.getElementById('new-player-pass').value;
+            if(newPass) {
+                try {
+                    const docRef = doc(db, "settings", "gameConfig");
+                    await updateDoc(docRef, { playerPass: newPass });
+                    alert('Password updated in the cloud for all players!');
+                } catch (e) {
+                    alert("Update failed. Make sure you are authorized.");
+                }
+            }
+        };
+    </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
-        body {
-            background: #000000;
-            background-image: radial-gradient(circle at top, #2b0b47 0%, #000000 70%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem 1rem;
-        }
-
-        @keyframes neonGlow {
-            0% { box-shadow: 0 0 5px #9d4edd, 0 0 10px #9d4edd, 0 0 20px #9d4edd; }
-            50% { box-shadow: 0 0 10px #c77dff, 0 0 20px #c77dff, 0 0 30px #c77dff; }
-            100% { box-shadow: 0 0 5px #9d4edd, 0 0 10px #9d4edd, 0 0 20px #9d4edd; }
-        }
-
-        h1 { color: #ffffff; font-size: clamp(1.8rem, 5vw, 2.5rem); text-align: center; margin-bottom: 2rem; text-shadow: 0 0 8px #c77dff, 0 0 15px #9d4edd; }
-        .logo { max-width: 180px; width: 100%; height: auto; margin: 0 auto 1.5rem auto; display: block; border-radius: 8px; }
-
-        #login-form, #admin-panel, #admin-link {
-            width: 100%; max-width: 420px; padding: 2rem; background: #0a001a;
-            border: 1px solid #4b1b78; border-radius: 12px;
-            animation: neonGlow 3s infinite ease-in-out; margin-bottom: 2rem;
-        }
-
-        h2 { color: #e0aaff; text-align: center; margin-bottom: 1.5rem; font-size: 1.5rem; text-shadow: 0 0 6px #9d4edd; }
-        label { display: block; margin-bottom: 0.5rem; color: #d4b3ff; font-weight: 500; }
-        input[type="password"], input[type="text"] {
-            width: 100%; padding: 0.9rem 1rem; margin-bottom: 1.2rem;
-            background: #120529; border: 1px solid #6a2cac; border-radius: 6px;
-            color: #ffffff; font-size: 1rem; outline: none;
-        }
-
-        button {
-            width: 100%; padding: 1rem; background: linear-gradient(90deg, #7b2cbf, #9d4edd);
-            border: none; border-radius: 6px; color: #ffffff; font-size: 1.1rem;
-            font-weight: bold; cursor: pointer; transition: all 0.3s ease;
-        }
-        button:hover { background: linear-gradient(90deg, #9d4edd, #c77dff); box-shadow: 0 0 12px #c77dff; }
+        body { background: #000000; background-image: radial-gradient(circle at top, #2b0b47 0%, #000000 70%); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem 1rem; color: #ffffff; }
+        @keyframes neonGlow { 0% { box-shadow: 0 0 5px #9d4edd, 0 0 10px #9d4edd, 0 0 20px #9d4edd; } 50% { box-shadow: 0 0 10px #c77dff, 0 0 20px #c77dff, 0 0 30px #c77dff; } 100% { box-shadow: 0 0 5px #9d4edd, 0 0 10px #9d4edd, 0 0 20px #9d4edd; } }
+        #login-form, #admin-panel, #admin-link { width: 100%; max-width: 420px; padding: 2rem; background: #0a001a; border: 1px solid #4b1b78; border-radius: 12px; animation: neonGlow 3s infinite ease-in-out; margin-bottom: 2rem; }
+        input { width: 100%; padding: 0.9rem 1rem; margin-bottom: 1.2rem; background: #120529; border: 1px solid #6a2cac; border-radius: 6px; color: #ffffff; }
+        button { width: 100%; padding: 1rem; background: linear-gradient(90deg, #7b2cbf, #9d4edd); border: none; border-radius: 6px; color: white; font-weight: bold; cursor: pointer; }
         .hidden { display: none; }
     </style>
 </head>
 <body>
     <h1>🎀 Candy Bingo 🎀</h1>
-
-    <!-- Player Login Form -->
     <div id="login-form">
-        <img src="candy2.PNG" alt="Candy Bingo Logo" class="logo">
         <h2>Player Login</h2>
-        <label for="event-pass">Event Password</label>
         <input type="password" id="event-pass" placeholder="Enter provided code">
-        <label for="name">Your Name / Team Name</label>
-        <input type="text" id="name" name="name" placeholder="e.g. Team Purple">
+        <input type="text" id="name" placeholder="Your Name">
         <button onclick="checkAndLogin()">Start Playing 🎉</button>
     </div>
-
-    <!-- Admin Link Box -->
     <div id="admin-link">
-        <a href="#" onclick="promptAdmin()" style="color:#9d4edd; text-decoration:none; display:block; text-align:center;">Admin Access</a>
+        <a href="#" onclick="document.getElementById('login-form').classList.add('hidden'); document.getElementById('admin-panel').classList.remove('hidden');" style="color:#9d4edd; text-decoration:none; display:block; text-align:center;">Admin Access</a>
     </div>
-
-    <!-- Admin Panel (Hidden) -->
     <div id="admin-panel" class="hidden">
         <h2>Admin Settings</h2>
-        <label>Update Player Password</label>
         <input type="password" id="new-player-pass" placeholder="New player password">
         <button onclick="updatePlayerPassword()">Save New Password</button>
-        <button onclick="location.reload()" style="margin-top:10px; background: #4b1b78;">Back to Login</button>
     </div>
-
-    <script>
-        // Set default player password
-        if (!localStorage.getItem('playerPass')) localStorage.setItem('playerPass', '1234');
-        const ADMIN_PASS = '1981';
-
-        function checkAndLogin() {
-            const inputPass = document.getElementById('event-pass').value;
-            const name = document.getElementById('name').value;
-            const savedPlayerPass = localStorage.getItem('playerPass');
-
-            if (inputPass === savedPlayerPass && name.trim() !== "") {
-                window.location.href = 'choose.html?name=' + encodeURIComponent(name);
-            } else {
-                alert('Invalid password or name missing!');
-            }
-        }
-
-        function promptAdmin() {
-            const code = prompt("Enter Admin Password:");
-            if (code === ADMIN_PASS) {
-                document.getElementById('login-form').classList.add('hidden');
-                document.getElementById('admin-link').classList.add('hidden');
-                document.getElementById('admin-panel').classList.remove('hidden');
-            } else {
-                alert("Incorrect Admin Password");
-            }
-        }
-
-        function updatePlayerPassword() {
-            const newPass = document.getElementById('new-player-pass').value;
-            if(newPass) {
-                localStorage.setItem('playerPass', newPass);
-                alert('Player password updated!');
-            }
-        }
-    </script>
 </body>
 </html>
