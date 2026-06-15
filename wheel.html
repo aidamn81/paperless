@@ -6,7 +6,7 @@
     <title>Candy's Neon Wheel</title>
     <style>
         body { background: #000; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: sans-serif; overflow: hidden; }
-        canvas { cursor: grab; filter: drop-shadow(0 0 15px #9d4edd); touch-action: none; border-radius: 50%; }
+        canvas { cursor: grab; filter: drop-shadow(0 0 15px #9d4edd); touch-action: none; border-radius: 50%; max-width: 90vw; }
         #admin-panel { margin-top: 1rem; background: #0a001a; padding: 1rem; border: 1px solid #4b1b78; border-radius: 8px; text-align: center; }
         input { background: #120529; border: 1px solid #6a2cac; color: white; padding: 0.5rem; width: 250px; }
         button { background: linear-gradient(90deg, #7b2cbf, #9d4edd); color: white; border: none; padding: 0.5rem 1rem; cursor: pointer; border-radius: 4px; }
@@ -17,7 +17,7 @@
     
     <div id="admin-panel">
         <h3>Admin: Update Prizes</h3>
-        <input type="text" id="prizeInput" placeholder="Prize 1, Prize 2, Prize 3">
+        <input type="text" id="prizeInput" placeholder="Prize1, Prize2, Prize3">
         <button onclick="updatePrizes()">Save Prizes</button>
     </div>
 
@@ -36,7 +36,7 @@
         
         const db = getFirestore(initializeApp(firebaseConfig));
         
-        let prizes = ["SPIN", "DRINK", "CANDY", "WIN"]; // Default if DB is empty
+        let prizes = ["SPIN", "DRINK", "CANDY", "WIN"];
         const canvas = document.getElementById('wheel');
         const ctx = canvas.getContext('2d');
         let angle = 0;
@@ -45,8 +45,10 @@
         async function loadPrizes() {
             try {
                 const docSnap = await getDoc(doc(db, "wheel", "prizes"));
-                if (docSnap.exists()) { prizes = docSnap.data().list; }
-            } catch (e) { console.log("Using local defaults"); }
+                if (docSnap.exists()) { 
+                    prizes = docSnap.data().list; 
+                }
+            } catch (e) { console.error("Error loading:", e); }
             drawWheel();
         }
 
@@ -54,40 +56,47 @@
             const input = document.getElementById('prizeInput').value;
             if(input) {
                 const newPrizes = input.split(',').map(s => s.trim());
-                await setDoc(doc(db, "wheel", "prizes"), { list: newPrizes });
-                prizes = newPrizes;
-                alert("Prizes updated!");
+                try {
+                    await setDoc(doc(db, "wheel", "prizes"), { list: newPrizes });
+                    prizes = newPrizes;
+                    alert("Prizes updated successfully!");
+                    drawWheel();
+                } catch (e) {
+                    alert("Update failed: " + e.message);
+                }
             }
         };
 
         function drawWheel() {
             const arc = Math.PI * 2 / prizes.length;
             ctx.clearRect(0, 0, 400, 400);
+            
             prizes.forEach((p, i) => {
                 ctx.beginPath();
                 ctx.fillStyle = i % 2 === 0 ? '#240046' : '#3c096c';
                 ctx.moveTo(200, 200);
                 ctx.arc(200, 200, 180, i * arc + angle, (i + 1) * arc + angle);
                 ctx.fill();
+                
                 ctx.save();
                 ctx.fillStyle = "#fff";
                 ctx.textAlign = "center";
+                ctx.font = "bold 14px Arial";
                 ctx.translate(200 + Math.cos(i * arc + angle + arc/2) * 120, 200 + Math.sin(i * arc + angle + arc/2) * 120);
                 ctx.rotate(i * arc + angle + arc/2 + Math.PI/2);
                 ctx.fillText(p, 0, 0);
                 ctx.restore();
             });
             
-            // Spin animation
             angle += speed;
-            speed *= 0.98; // Friction
+            speed *= 0.98;
             requestAnimationFrame(drawWheel);
         }
 
         let isDragging = false;
         canvas.onpointerdown = () => { isDragging = true; speed = 0; };
         canvas.onpointermove = (e) => { if(isDragging) angle += 0.1; };
-        canvas.onpointerup = () => { isDragging = false; speed = 0.5; }; // Initial velocity after release
+        canvas.onpointerup = () => { isDragging = false; speed = 0.5; };
 
         loadPrizes();
     </script>
