@@ -33,7 +33,6 @@
 </head>
 <body class="bg-black min-h-screen flex flex-col items-center">
 
-    <!-- Follow Logo -->
     <a href="instagram://user?username=candyheals" onclick="window.open('https://www.instagram.com/candyheals/', '_blank'); return true;">
         <img src="follow.jpg" alt="Follow @candyheals" class="follow-logo">
     </a>
@@ -71,7 +70,8 @@
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const playerName = (urlParams.get("name") || "Guest").trim();
-        let currentMode = null;
+        // Load saved mode
+        let currentMode = localStorage.getItem(`mode_${playerName}`);
         let hasWon = false;
         document.getElementById("playerInfo").textContent = `Playing as: ${playerName}`;
 
@@ -80,6 +80,7 @@
 
         function setMode(mode) {
             currentMode = mode;
+            localStorage.setItem(`mode_${playerName}`, mode);
             hasWon = false;
             document.getElementById('modeStatus').textContent = `Round: ${mode.toUpperCase()}`;
             document.querySelectorAll('.game-mode').forEach(b => b.classList.toggle('game-mode-active', b.textContent.replace(/\s/g,'').toLowerCase() === mode.toLowerCase()));
@@ -127,7 +128,6 @@
                 blockDiv.className = "bingo-block";
                 blockDiv.innerHTML = `<div class="block-title">Block ${b}</div>`;
                 
-                // Keep the same logic: generate grid with empty slots
                 let gridData = [];
                 for (let r = 0; r < 3; r++) {
                     let rowPositions = [0, 1, 2, 3, 4, 5, 6, 7, 8].sort(() => rng() - 0.5);
@@ -162,6 +162,8 @@
                 }
                 container.appendChild(blockDiv);
             }
+            // Apply saved mode styling if it exists
+            if(currentMode) setMode(currentMode);
         }
 
         function syncPlayers() {
