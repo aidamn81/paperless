@@ -5,24 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Candy's Neon Wheel</title>
     <style>
-        body { background: #000; color: #fff; display: flex; flex-direction: column; align-items: center; min-height: 100vh; font-family: sans-serif; overflow: hidden; margin: 0; padding-top: 20px; }
+        body { background: #000; color: #fff; display: flex; flex-direction: column; align-items: center; min-height: 100vh; font-family: sans-serif; overflow: hidden; margin: 0; padding-top: 10px; }
         
-        /* Header Layout */
-        #header-row { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; max-width: 800px; padding: 0 20px; }
+        #header-row { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 800px; padding: 0 20px; }
         .left-menu { display: flex; flex-direction: column; gap: 10px; }
-        .logo-placeholder { width: 120px; height: 120px; border: 2px dashed #4b1b78; display: flex; align-items: center; justify-content: center; color: #4b1b78; border-radius: 8px; }
         
+        /* Logo & Social */
+        .right-menu { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .logo { width: 100px; height: 100px; cursor: pointer; border-radius: 8px; }
+        .follow-text { color: #c77dff; font-size: 0.8rem; text-decoration: underline; cursor: pointer; }
+
         /* Neon Buttons */
         .neon-btn { background: #0a001a; border: 1px solid #9d4edd; color: #fff; padding: 8px 16px; border-radius: 6px; cursor: pointer; text-shadow: 0 0 5px #9d4edd; box-shadow: 0 0 10px #9d4edd; transition: 0.3s; }
         .neon-btn:hover { background: #9d4edd; }
 
         /* Wheel Area */
-        #wheel-container { position: relative; display: flex; flex-direction: column; align-items: center; margin-top: 20px; }
-        canvas { cursor: grab; filter: drop-shadow(0 0 15px #9d4edd); touch-action: none; border-radius: 50%; max-width: 80vw; }
-        #arrow { width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 30px solid #c77dff; margin-bottom: 10px; filter: drop-shadow(0 0 5px #c77dff); }
+        #wheel-container { position: relative; display: flex; flex-direction: column; align-items: center; margin-top: 10px; }
+        canvas { cursor: grab; filter: drop-shadow(0 0 15px #9d4edd); touch-action: none; border-radius: 50%; max-width: 60vw; max-height: 60vh; }
+        #arrow { width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 30px solid #c77dff; margin-bottom: 5px; filter: drop-shadow(0 0 5px #c77dff); }
         
-        /* Admin Panel */
-        #admin-panel { margin-top: 1rem; background: #0a001a; padding: 1rem; border: 1px solid #4b1b78; border-radius: 8px; display: none; text-align: center; }
+        #admin-panel { margin-top: 0.5rem; background: #0a001a; padding: 1rem; border: 1px solid #4b1b78; border-radius: 8px; display: none; text-align: center; }
         input { background: #120529; border: 1px solid #6a2cac; color: white; padding: 0.5rem; width: 250px; margin-bottom: 0.5rem; }
     </style>
 </head>
@@ -30,24 +32,29 @@
 
     <div id="header-row">
         <div class="left-menu">
-            <button class="neon-btn" onclick="document.getElementById('admin-panel').style.display = (document.getElementById('admin-panel').style.display === 'block' ? 'none' : 'block')">ADMIN SETTINGS</button>
+            <button class="neon-btn" onclick="document.getElementById('admin-panel').style.display = (document.getElementById('admin-panel').style.display === 'block' ? 'none' : 'block')">ADMIN</button>
             <button class="neon-btn" onclick="window.location.href='choose.html'">HOME</button>
         </div>
-        <div class="logo-placeholder">LOGO</div>
-    </div>
 
-    <div id="wheel-container">
-        <div id="arrow"></div>
-        <canvas id="wheel" width="400" height="400"></canvas>
+        <div id="wheel-container">
+            <div id="arrow"></div>
+            <canvas id="wheel" width="400" height="400"></canvas>
+        </div>
+
+        <div class="right-menu">
+            <img src="candywheel.PNG" alt="Logo" class="logo" onclick="window.open('https://www.instagram.com/candyheals/', '_blank')">
+            <div class="follow-text" onclick="window.open('https://www.instagram.com/candyheals/', '_blank')">FOLLOW ME</div>
+        </div>
     </div>
     
     <div id="admin-panel">
         <h3>Update Prizes</h3>
         <input type="text" id="prizeInput" placeholder="Prize1, Prize2, Prize3">
-        <button onclick="updatePrizes()">Save Prizes</button>
+        <button onclick="updatePrizes()" class="neon-btn">Save</button>
     </div>
 
     <script type="module">
+        // ... [Firebase imports and logic remain same as previous version] ...
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
@@ -90,19 +97,16 @@
         function drawWheel() {
             const arc = Math.PI * 2 / prizes.length;
             ctx.clearRect(0, 0, 400, 400);
-            
             prizes.forEach((p, i) => {
                 const startAngle = i * arc + angle;
                 const endAngle = (i + 1) * arc + angle;
                 const midAngle = startAngle + arc / 2;
-
                 ctx.beginPath();
                 ctx.fillStyle = colors[i % colors.length];
                 ctx.moveTo(200, 200);
                 ctx.arc(200, 200, 180, startAngle, endAngle);
                 ctx.lineTo(200, 200);
                 ctx.fill();
-                
                 ctx.save();
                 ctx.fillStyle = "#fff";
                 ctx.textAlign = "center";
@@ -111,15 +115,10 @@
                 ctx.translate(200, 200);
                 ctx.rotate(midAngle);
                 ctx.translate(100, 0);
-                
-                if (midAngle > Math.PI / 2 && midAngle < 3 * Math.PI / 2) {
-                    ctx.rotate(Math.PI);
-                }
-                
+                if (midAngle > Math.PI / 2 && midAngle < 3 * Math.PI / 2) ctx.rotate(Math.PI);
                 ctx.fillText(p, 0, 0);
                 ctx.restore();
             });
-            
             angle += speed;
             speed *= 0.98;
             requestAnimationFrame(drawWheel);
@@ -129,7 +128,6 @@
         canvas.onpointerdown = () => { isDragging = true; speed = 0; };
         canvas.onpointermove = (e) => { if(isDragging) angle += 0.1; };
         canvas.onpointerup = () => { isDragging = false; speed = 0.5; };
-        
         loadPrizes();
     </script>
 </body>
