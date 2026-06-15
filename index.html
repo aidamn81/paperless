@@ -7,6 +7,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAQSRSJC11L7n5zYivGAWKZosW-emSIaos",
@@ -19,16 +20,17 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
 
-        // Make functions available globally for HTML buttons
+        // Auto-login as anonymous to get authorized for database writes
+        signInAnonymously(auth).catch((error) => console.error("Auth failed:", error));
+
         window.checkAndLogin = async () => {
             const inputPass = document.getElementById('event-pass').value;
             const name = document.getElementById('name').value;
-            
             try {
                 const docRef = doc(db, "settings", "gameConfig");
                 const docSnap = await getDoc(docRef);
-                
                 if (docSnap.exists() && inputPass === docSnap.data().playerPass && name.trim() !== "") {
                     window.location.href = 'choose.html?name=' + encodeURIComponent(name);
                 } else {
@@ -47,7 +49,7 @@
                     await updateDoc(docRef, { playerPass: newPass });
                     alert('Password updated in the cloud for all players!');
                 } catch (e) {
-                    alert("Update failed. Make sure you are authorized.");
+                    alert("Update failed. Make sure you are authorized. Error: " + e.message);
                 }
             }
         };
@@ -57,14 +59,17 @@
         body { background: #000000; background-image: radial-gradient(circle at top, #2b0b47 0%, #000000 70%); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem 1rem; color: #ffffff; }
         @keyframes neonGlow { 0% { box-shadow: 0 0 5px #9d4edd, 0 0 10px #9d4edd, 0 0 20px #9d4edd; } 50% { box-shadow: 0 0 10px #c77dff, 0 0 20px #c77dff, 0 0 30px #c77dff; } 100% { box-shadow: 0 0 5px #9d4edd, 0 0 10px #9d4edd, 0 0 20px #9d4edd; } }
         #login-form, #admin-panel, #admin-link { width: 100%; max-width: 420px; padding: 2rem; background: #0a001a; border: 1px solid #4b1b78; border-radius: 12px; animation: neonGlow 3s infinite ease-in-out; margin-bottom: 2rem; }
+        .logo { max-width: 150px; width: 100%; height: auto; margin: 0 auto 1.5rem auto; display: block; border-radius: 8px; }
         input { width: 100%; padding: 0.9rem 1rem; margin-bottom: 1.2rem; background: #120529; border: 1px solid #6a2cac; border-radius: 6px; color: #ffffff; }
         button { width: 100%; padding: 1rem; background: linear-gradient(90deg, #7b2cbf, #9d4edd); border: none; border-radius: 6px; color: white; font-weight: bold; cursor: pointer; }
         .hidden { display: none; }
+        h1 { margin-bottom: 2rem; text-shadow: 0 0 8px #c77dff; }
     </style>
 </head>
 <body>
     <h1>🎀 Candy Bingo 🎀</h1>
     <div id="login-form">
+        <img src="candy2.PNG" alt="Candy Logo" class="logo">
         <h2>Player Login</h2>
         <input type="password" id="event-pass" placeholder="Enter provided code">
         <input type="text" id="name" placeholder="Your Name">
