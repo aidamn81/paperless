@@ -42,7 +42,7 @@
     </div>
     
     <div id="admin-panel">
-        <div class="close-btn" onclick="document.getElementById('admin-panel').style.display='none'">×</div>
+        <div class="close-btn" onclick="document.getElementById('admin-panel').style.display = 'none'">×</div>
         <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Update Prizes</h3>
         <input type="text" id="prizeInput" placeholder="Prize1, Prize2, Prize3">
         <br>
@@ -69,7 +69,7 @@
                     prizes = docSnap.data().list;
                     document.getElementById('prizeInput').value = prizes.join(', ');
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) { console.error("Load Error:", e); }
             drawWheel();
         }
 
@@ -108,10 +108,15 @@
                 const input = document.getElementById('prizeInput').value;
                 if(input) {
                     const newPrizes = input.split(',').map(s => s.trim());
-                    await setDoc(doc(db, "wheel", "prizes"), { list: newPrizes });
-                    prizes = newPrizes;
-                    alert("Prizes updated!");
-                    document.getElementById('admin-panel').style.display = 'none';
+                    try {
+                        await setDoc(doc(db, "wheel", "prizes"), { list: newPrizes });
+                        prizes = newPrizes;
+                        alert("Prizes saved permanently!");
+                        document.getElementById('admin-panel').style.display = 'none';
+                    } catch (e) { 
+                        alert("Save error: " + e.message); 
+                        console.error("Full Save Error:", e);
+                    }
                 }
             } else {
                 alert("Incorrect Password!");
