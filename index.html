@@ -23,11 +23,11 @@
         const auth = getAuth(app);
 
         let isAuthReady = false;
-        signInAnonymously(auth).catch((error) => console.error("Auth failed:", error));
+        signInAnonymously(auth).catch((error) => alert("Auth Error: " + error.message));
         onAuthStateChanged(auth, (user) => { if (user) isAuthReady = true; });
 
         window.checkAndLogin = async () => {
-            if (!isAuthReady) { alert("Connecting to server..."); return; }
+            if (!isAuthReady) { alert("Still connecting to server... wait a second."); return; }
             const inputPass = document.getElementById('event-pass').value;
             const name = document.getElementById('name').value;
             try {
@@ -38,7 +38,8 @@
                     alert('Invalid password or name missing!');
                 }
             } catch (e) {
-                alert("Error connecting to server. Check your connection or Firebase Rules.");
+                // THIS WILL SHOW THE REAL ERROR
+                alert("DETAILED ERROR: " + e.code + " - " + e.message);
             }
         };
 
