@@ -70,7 +70,6 @@
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const playerName = (urlParams.get("name") || "Guest").trim();
-        // Load saved mode
         let currentMode = localStorage.getItem(`mode_${playerName}`);
         let hasWon = false;
         document.getElementById("playerInfo").textContent = `Playing as: ${playerName}`;
@@ -91,7 +90,6 @@
             const blocks = document.querySelectorAll('.bingo-block');
             let totalCompletedLines = 0;
             let fullHouseAchieved = false;
-
             blocks.forEach(block => {
                 const rows = Array.from(block.querySelectorAll('.bingo-row'));
                 const completedInThisBlock = rows.filter(r => {
@@ -99,20 +97,16 @@
                     const nonEmptyCells = cells.filter(c => !c.classList.contains('empty'));
                     return nonEmptyCells.length > 0 && nonEmptyCells.every(c => c.classList.contains('marked'));
                 }).length;
-                
                 totalCompletedLines += completedInThisBlock;
-                
                 const allCells = Array.from(block.querySelectorAll('.bingo-cell'));
                 const markedNonEmpty = allCells.filter(c => !c.classList.contains('empty') && c.classList.contains('marked'));
                 const totalNonEmpty = allCells.filter(c => !c.classList.contains('empty'));
                 if (markedNonEmpty.length === totalNonEmpty.length && totalNonEmpty.length > 0) fullHouseAchieved = true;
             });
-
             let win = false;
             if (currentMode === 'oneLine' && totalCompletedLines >= 1) win = true;
             else if (currentMode === 'twoLines' && totalCompletedLines >= 2) win = true;
             else if (currentMode === 'fullHouse' && fullHouseAchieved) win = true;
-
             if(win) { hasWon = true; document.getElementById('bingoPopup').style.display = 'flex'; }
         }
 
@@ -122,39 +116,35 @@
             const container = document.getElementById("bingoCard");
             const rng = seededRandom(getSeed());
             const marked = JSON.parse(localStorage.getItem(`marked_${playerName}`)) || {};
+            
+            // Generate pool of 90 unique numbers sorted by range
+            let pool = [];
+            for (let i = 0; i < 9; i++) {
+                let range = [];
+                for (let j = 1; j <= 10; j++) range.push(i * 10 + j);
+                range.sort(() => rng() - 0.5);
+                pool.push(range);
+            }
 
             for (let b = 1; b <= 5; b++) {
                 const blockDiv = document.createElement("div");
                 blockDiv.className = "bingo-block";
                 blockDiv.innerHTML = `<div class="block-title">Block ${b}</div>`;
                 
-                let gridData = [];
-                for (let r = 0; r < 3; r++) {
-                    let rowPositions = [0, 1, 2, 3, 4, 5, 6, 7, 8].sort(() => rng() - 0.5);
-                    let rowEmpty = rowPositions.slice(0, 4);
-                    for (let c = 0; c < 9; c++) {
-                        gridData.push({ row: r, col: c, isEmpty: rowEmpty.includes(c), val: Math.floor(rng() * 90) + 1 });
-                    }
-                }
-
                 for (let r = 0; r < 3; r++) {
                     const rowDiv = document.createElement("div");
                     rowDiv.className = "bingo-row";
+                    let cols = [0,1,2,3,4,5,6,7,8].sort(() => rng() - 0.5).slice(0, 5); // 5 filled cells
                     for (let c = 0; c < 9; c++) {
-                        const cellData = gridData.find(d => d.row === r && d.col === c);
                         const cell = document.createElement("div");
                         const id = `b${b}r${r}c${c}`;
-                        cell.className = "bingo-cell" + (cellData.isEmpty ? " empty" : "");
-                        
-                        if (!cellData.isEmpty) {
-                            cell.textContent = cellData.val;
+                        if (cols.includes(c)) {
+                            cell.className = "bingo-cell";
+                            cell.textContent = pool[c].pop();
                             if (marked[id]) cell.classList.add("marked");
-                            cell.onclick = () => { 
-                                cell.classList.add("marked"); 
-                                marked[id] = true; 
-                                localStorage.setItem(`marked_${playerName}`, JSON.stringify(marked)); 
-                                checkWin(); 
-                            };
+                            cell.onclick = () => { cell.classList.add("marked"); marked[id] = true; localStorage.setItem(`marked_${playerName}`, JSON.stringify(marked)); checkWin(); };
+                        } else {
+                            cell.className = "bingo-cell empty";
                         }
                         rowDiv.appendChild(cell);
                     }
@@ -162,7 +152,6 @@
                 }
                 container.appendChild(blockDiv);
             }
-            // Apply saved mode styling if it exists
             if(currentMode) setMode(currentMode);
         }
 
