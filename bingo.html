@@ -1,170 +1,180 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Paperless Bingo</title>
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 20px;
-    }
-
-    .grid {
-        display: grid;
-        grid-template-columns: repeat(5, 70px);
-        gap: 8px;
-        margin-top: 20px;
-    }
-
-    .cell {
-        width: 70px;
-        height: 70px;
-        border: 2px solid #333;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        font-weight: bold;
-        font-size: 18px;
-        user-select: none;
-    }
-
-    .marked {
-        background: gold;
-    }
-
-    .free {
-        background: lightgreen;
-    }
-
-    .header {
-        font-size: 24px;
-        font-weight: bold;
-    }
-
-    #message {
-        margin-top: 15px;
-        font-size: 20px;
-        color: green;
-        font-weight: bold;
-    }
-
-    button {
-        margin: 10px 5px;
-        padding: 10px 15px;
-    }
-</style>
-</head>
-<body>
-
-<h1>BINGO</h1>
-
-<div class="grid" id="bingoGrid"></div>
-
-<div>
-    <button onclick="generateBoard()">New Card</button>
-    <button onclick="resetBoard()">Reset Marks</button>
-</div>
-
-<div id="message"></div>
-
-<script>
-const ranges = [
-    [1, 15],
-    [16, 30],
-    [31, 45],
-    [46, 60],
-    [61, 75]
-];
-
-function getNumbers(min, max, count) {
-    const nums = [];
-
-    while (nums.length < count) {
-        const n = Math.floor(Math.random() * (max - min + 1)) + min;
-        if (!nums.includes(n)) {
-            nums.push(n);
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>👠 Candy HEALS's Bingo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * { box-sizing: border-box; }
+        @keyframes neonGlow {
+            0% { box-shadow: 0 0 5px #9d4edd, 0 0 10px #9d4edd, 0 0 20px #9d4edd40; }
+            50% { box-shadow: 0 0 10px #c77dff, 0 0 20px #c77dff, 0 0 30px #c77dff60; }
+            100% { box-shadow: 0 0 5px #9d4edd, 0 0 10px #9d4edd, 0 0 20px #9d4edd40; }
         }
-    }
+        body { background: #000000; background-image: radial-gradient(circle at top, #2b0b47 0%, #000000 70%); color: #ffffff; margin: 0; padding: 0.5rem; font-family: 'Segoe UI', Roboto, sans-serif; }
+        #bingoLady { position: fixed; top: 1rem; right: 1rem; width: clamp(80px, 15vw, 140px); height: auto; z-index: 10; pointer-events: none; opacity: 0.95; border-radius: 8px; }
+        .follow-logo { max-width: 120px; width: 100%; height: auto; margin: 0.5rem auto; cursor: pointer; transition: transform 0.2s; display: block; }
+        .follow-logo:hover { transform: scale(1.05); }
+        .marked { background: rgba(199, 125, 255, 0.6) !important; border: 2px solid #c77dff !important; pointer-events: none; }
+        .bingo-cell { width: clamp(38px, 9vw, 52px); height: clamp(42px, 11vw, 58px); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: clamp(1rem, 3.5vw, 1.25rem); border: 1px solid #6a2cac; cursor: pointer; user-select: none; background: #120529; color: #e0aaff; }
+        .empty { background-color: #200b40; cursor: default; }
+        .bingo-row { display: flex; justify-content: center; gap: 1px; }
+        .bingo-block { width: fit-content; margin: 1rem auto; border: 2px solid #4b1b78; padding: 0.6rem; border-radius: 8px; background: #0a001a; animation: neonGlow 4s infinite ease-in-out; }
+        .block-title { text-align: center; color: #c77dff; font-size: 1rem; margin-bottom: 0.5rem; }
+        button { padding: 0.6rem 1.2rem; cursor: pointer; transition: all 0.2s; border-radius: 6px; }
+        .game-mode { background: #120529; border: 1px solid #6a2cac; color: #e0aaff; margin: 0.2rem; }
+        .game-mode-active { background: linear-gradient(90deg, #7b2cbf, #9d4edd); border-color: #c77dff; color: white; }
+        #onlinePlayers { max-height: 100px; overflow-y: auto; background: #120529; padding: 0.5rem; border-radius: 6px; margin-top: 0.5rem; font-size: 0.9rem; }
+        
+        #bingoPopup { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 999; }
+        .popup-box { background: #0a001a; border: 3px solid #c77dff; padding: 2rem; border-radius: 20px; text-align: center; box-shadow: 0 0 20px #9d4edd; }
+    </style>
+</head>
+<body class="bg-black min-h-screen flex flex-col items-center">
 
-    return nums;
-}
+    <a href="instagram://user?username=candyheals" onclick="window.open('https://www.instagram.com/candyheals/', '_blank'); return true;">
+        <img src="follow.jpg" alt="Follow @candyheals" class="follow-logo">
+    </a>
 
-function generateBoard() {
-    const grid = document.getElementById('bingoGrid');
-    const message = document.getElementById('message');
+    <img id="bingoLady" src="candy1.PNG" alt="Bingo Lady">
 
-    grid.innerHTML = '';
-    message.textContent = '';
+    <header class="shadow p-4 w-full max-w-3xl rounded-md mt-2 bg-[#0a001a]">
+        <h1 class="text-xl font-bold text-center">🎀 Candy Bingo 🎀</h1>
+        <div id="playerInfo" class="text-center mt-2 text-[#c77dff]"></div>
+    </header>
 
-    let columns = ranges.map(r => getNumbers(r[0], r[1], 5));
+    <section class="mt-4 w-full max-w-3xl px-2">
+        <h2 class="text-sm text-center text-[#c77dff]">Currently Playing</h2>
+        <div id="onlinePlayers"></div>
+        <div class="flex flex-wrap justify-center mt-4">
+            <button class="game-mode" onclick="setMode('oneLine')">ONE LINE</button>
+            <button class="game-mode" onclick="setMode('twoLines')">TWO LINES</button>
+            <button class="game-mode" onclick="setMode('fullHouse')">FULL HOUSE</button>
+        </div>
+        <div id="modeStatus" class="text-center mt-2 text-[#9d4edd] font-bold">Select a round!</div>
+    </section>
 
-    for (let row = 0; row < 5; row++) {
-        for (let col = 0; col < 5; col++) {
-            const cell = document.createElement('div');
-            cell.className = 'cell';
+    <section class="mt-6 w-full max-w-3xl flex flex-col items-center">
+        <button onclick="refreshSheet()" class="mb-4 bg-red-900 px-6 py-2 rounded font-bold hover:bg-red-700">🔄 Refresh My Card</button>
+        <div id="bingoCard" class="flex flex-col items-center w-full"></div>
+    </section>
 
-            if (row === 2 && col === 2) {
-                cell.textContent = 'FREE';
-                cell.classList.add('marked', 'free');
-            } else {
-                cell.textContent = columns[col][row];
-            }
+    <div id="bingoPopup" onclick="this.style.display='none'">
+        <div class="popup-box">
+            <h2 class="text-3xl text-[#c77dff] font-bold mb-2">BINGO!</h2>
+            <p class="text-white">Congratulations you’re a winner!</p>
+        </div>
+    </div>
 
-            cell.addEventListener('click', () => {
-                cell.classList.toggle('marked');
-                checkBingo();
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const playerName = (urlParams.get("name") || "Guest").trim();
+        // Load saved mode
+        let currentMode = localStorage.getItem(`mode_${playerName}`);
+        let hasWon = false;
+        document.getElementById("playerInfo").textContent = `Playing as: ${playerName}`;
+
+        function seededRandom(seed) { let s = seed; return function() { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; } }
+        function getSeed() { const stored = localStorage.getItem(`seed_${playerName}`); if (stored) return parseInt(stored); const n = Math.floor(Math.random()*1000000); localStorage.setItem(`seed_${playerName}`, n); return n; }
+
+        function setMode(mode) {
+            currentMode = mode;
+            localStorage.setItem(`mode_${playerName}`, mode);
+            hasWon = false;
+            document.getElementById('modeStatus').textContent = `Round: ${mode.toUpperCase()}`;
+            document.querySelectorAll('.game-mode').forEach(b => b.classList.toggle('game-mode-active', b.textContent.replace(/\s/g,'').toLowerCase() === mode.toLowerCase()));
+        }
+
+        function checkWin() {
+            if(!currentMode || hasWon) return;
+            const blocks = document.querySelectorAll('.bingo-block');
+            let totalCompletedLines = 0;
+            let fullHouseAchieved = false;
+
+            blocks.forEach(block => {
+                const rows = Array.from(block.querySelectorAll('.bingo-row'));
+                const completedInThisBlock = rows.filter(r => {
+                    const cells = Array.from(r.children);
+                    const nonEmptyCells = cells.filter(c => !c.classList.contains('empty'));
+                    return nonEmptyCells.length > 0 && nonEmptyCells.every(c => c.classList.contains('marked'));
+                }).length;
+                
+                totalCompletedLines += completedInThisBlock;
+                
+                const allCells = Array.from(block.querySelectorAll('.bingo-cell'));
+                const markedNonEmpty = allCells.filter(c => !c.classList.contains('empty') && c.classList.contains('marked'));
+                const totalNonEmpty = allCells.filter(c => !c.classList.contains('empty'));
+                if (markedNonEmpty.length === totalNonEmpty.length && totalNonEmpty.length > 0) fullHouseAchieved = true;
             });
 
-            grid.appendChild(cell);
+            let win = false;
+            if (currentMode === 'oneLine' && totalCompletedLines >= 1) win = true;
+            else if (currentMode === 'twoLines' && totalCompletedLines >= 2) win = true;
+            else if (currentMode === 'fullHouse' && fullHouseAchieved) win = true;
+
+            if(win) { hasWon = true; document.getElementById('bingoPopup').style.display = 'flex'; }
         }
-    }
-}
 
-function resetBoard() {
-    document.querySelectorAll('.cell').forEach(cell => {
-        if (!cell.classList.contains('free')) {
-            cell.classList.remove('marked');
+        function refreshSheet() { localStorage.removeItem(`seed_${playerName}`); localStorage.removeItem(`marked_${playerName}`); window.location.reload(); }
+
+        function renderAllBlocks() {
+            const container = document.getElementById("bingoCard");
+            const rng = seededRandom(getSeed());
+            const marked = JSON.parse(localStorage.getItem(`marked_${playerName}`)) || {};
+
+            for (let b = 1; b <= 5; b++) {
+                const blockDiv = document.createElement("div");
+                blockDiv.className = "bingo-block";
+                blockDiv.innerHTML = `<div class="block-title">Block ${b}</div>`;
+                
+                let gridData = [];
+                for (let r = 0; r < 3; r++) {
+                    let rowPositions = [0, 1, 2, 3, 4, 5, 6, 7, 8].sort(() => rng() - 0.5);
+                    let rowEmpty = rowPositions.slice(0, 4);
+                    for (let c = 0; c < 9; c++) {
+                        gridData.push({ row: r, col: c, isEmpty: rowEmpty.includes(c), val: Math.floor(rng() * 90) + 1 });
+                    }
+                }
+
+                for (let r = 0; r < 3; r++) {
+                    const rowDiv = document.createElement("div");
+                    rowDiv.className = "bingo-row";
+                    for (let c = 0; c < 9; c++) {
+                        const cellData = gridData.find(d => d.row === r && d.col === c);
+                        const cell = document.createElement("div");
+                        const id = `b${b}r${r}c${c}`;
+                        cell.className = "bingo-cell" + (cellData.isEmpty ? " empty" : "");
+                        
+                        if (!cellData.isEmpty) {
+                            cell.textContent = cellData.val;
+                            if (marked[id]) cell.classList.add("marked");
+                            cell.onclick = () => { 
+                                cell.classList.add("marked"); 
+                                marked[id] = true; 
+                                localStorage.setItem(`marked_${playerName}`, JSON.stringify(marked)); 
+                                checkWin(); 
+                            };
+                        }
+                        rowDiv.appendChild(cell);
+                    }
+                    blockDiv.appendChild(rowDiv);
+                }
+                container.appendChild(blockDiv);
+            }
+            // Apply saved mode styling if it exists
+            if(currentMode) setMode(currentMode);
         }
-    });
 
-    document.getElementById('message').textContent = '';
-}
-
-function checkBingo() {
-    const cells = [...document.querySelectorAll('.cell')];
-    const marked = cells.map(c => c.classList.contains('marked'));
-
-    const wins = [];
-
-    // Rows
-    for (let r = 0; r < 5; r++) {
-        wins.push([0,1,2,3,4].map(c => r * 5 + c));
-    }
-
-    // Columns
-    for (let c = 0; c < 5; c++) {
-        wins.push([0,1,2,3,4].map(r => r * 5 + c));
-    }
-
-    // Diagonals
-    wins.push([0,6,12,18,24]);
-    wins.push([4,8,12,16,20]);
-
-    const bingo = wins.some(line =>
-        line.every(index => marked[index])
-    );
-
-    document.getElementById('message').textContent =
-        bingo ? 'BINGO!' : '';
-}
-
-generateBoard();
-</script>
-
+        function syncPlayers() {
+            let list = JSON.parse(localStorage.getItem('players') || '{}');
+            list[playerName] = Date.now();
+            Object.keys(list).forEach(k => { if(Date.now() - list[k] > 10000) delete list[k]; });
+            localStorage.setItem('players', JSON.stringify(list));
+            document.getElementById('onlinePlayers').innerHTML = Object.keys(list).map(p => `• ${p}`).join('<br>');
+        }
+        setInterval(syncPlayers, 3000);
+        window.onload = () => { renderAllBlocks(); syncPlayers(); };
+    </script>
 </body>
 </html>
