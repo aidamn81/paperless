@@ -24,7 +24,7 @@
         .follow-logo { max-width: 120px; width: 100%; height: auto; margin: 0.5rem auto; cursor: pointer; transition: transform 0.2s; display: block; }
         .follow-logo:hover { transform: scale(1.05); }
         .marked { background: rgba(199, 125, 255, 0.6) !important; border: 2px solid #c77dff !important; pointer-events: none; }
-        .bingo-cell { width: clamp(90px, 25vw, 120px); height: clamp(42px, 11vw, 58px); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: clamp(0.7rem, 2vw, 0.85rem); border: 1px solid #6a2cac; cursor: pointer; user-select: none; background: #120529; color: #e0aaff; text-align: center; padding: 2px; }
+        .bingo-cell { width: clamp(80px, 20vw, 100px); height: clamp(45px, 12vw, 60px); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: clamp(0.7rem, 2vw, 0.8rem); border: 1px solid #6a2cac; cursor: pointer; user-select: none; background: #120529; color: #e0aaff; text-align: center; padding: 2px; }
         .empty { background-color: #200b40; cursor: default; }
         .bingo-row { display: flex; justify-content: center; gap: 1px; }
         .bingo-block { width: fit-content; margin: 1rem auto; border: 2px solid #4b1b78; padding: 0.6rem; border-radius: 8px; background: #0a001a; animation: neonGlow 4s infinite ease-in-out; }
@@ -166,13 +166,19 @@
                 for (let r = 0; r < 3; r++) {
                     const rowDiv = document.createElement("div");
                     rowDiv.className = "bingo-row";
+                    // Pick 2 random indices to be "empty"
+                    let emptyIndices = [0,1,2].sort(() => rng() - 0.5).slice(0, 1); 
                     for (let c = 0; c < 3; c++) {
                         const cell = document.createElement("div");
                         const id = `b${b}r${r}c${c}`;
-                        cell.className = "bingo-cell";
-                        cell.textContent = shuffledSongs.pop();
-                        if (marked[id]) cell.classList.add("marked");
-                        cell.onclick = () => { cell.classList.add("marked"); marked[id] = true; localStorage.setItem(`marked_${playerName}`, JSON.stringify(marked)); checkWin(); };
+                        if (emptyIndices.includes(c)) {
+                            cell.className = "bingo-cell empty";
+                        } else {
+                            cell.className = "bingo-cell";
+                            cell.textContent = shuffledSongs.pop();
+                            if (marked[id]) cell.classList.add("marked");
+                            cell.onclick = () => { cell.classList.add("marked"); marked[id] = true; localStorage.setItem(`marked_${playerName}`, JSON.stringify(marked)); checkWin(); };
+                        }
                         rowDiv.appendChild(cell);
                     }
                     blockDiv.appendChild(rowDiv);
