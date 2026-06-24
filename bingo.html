@@ -13,7 +13,9 @@
             100% { box-shadow: 0 0 5px #9d4edd, 0 0 10px #9d4edd, 0 0 20px #9d4edd40; }
         }
         @keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7); } 70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(251, 191, 36, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); } }
         .flash-text { animation: flash 1s infinite; color: #fbbf24; font-weight: bold; margin-bottom: 8px; font-size: 1.5rem; text-shadow: 0 0 10px #b45309; }
+        .pulse-btn { background: #fbbf24; color: #000; font-weight: bold; padding: 0.8rem 2rem; border-radius: 9999px; animation: pulse 2s infinite; border: none; cursor: pointer; }
         body { background: #000000; background-image: radial-gradient(circle at top, #2b0b47 0%, #000000 70%); color: #ffffff; margin: 0; padding: 0.5rem; font-family: 'Segoe UI', Roboto, sans-serif; }
         #bingoLady { position: fixed; top: 1rem; right: 1rem; width: clamp(80px, 15vw, 140px); height: auto; z-index: 10; pointer-events: none; opacity: 0.95; border-radius: 8px; }
         .follow-logo { max-width: 120px; width: 100%; height: auto; margin: 0.5rem auto; cursor: pointer; transition: transform 0.2s; display: block; }
@@ -65,9 +67,9 @@
 
     <div id="rulesPopup" class="hidden">
         <div class="popup-box">
-            <h2 id="rulesTitle" class="text-2xl text-[#c77dff] font-bold mb-4">Round Rules</h2>
-            <p id="rulesContent" class="text-white mb-6 text-left"></p>
-            <button class="bg-[#9d4edd] text-white px-8 py-2 rounded-full font-bold" onclick="acceptRules()">OK</button>
+            <h2 id="rulesTitle" class="text-2xl text-[#c77dff] font-bold mb-4">The rules:</h2>
+            <p id="rulesContent" class="text-white mb-6 text-left whitespace-pre-line"></p>
+            <button class="pulse-btn" onclick="acceptRules()">OK</button>
         </div>
     </div>
 
@@ -86,15 +88,17 @@
         let pendingMode = '';
         document.getElementById("playerInfo").textContent = `Playing as: ${playerName}`;
 
-        const ruleSets = {
-            oneLine: "Miss Candy will read out the numbers and you have to tap them on your sheet! SHOUT BINGO!<br><br>The first round is ONE LINE! This means when one horizontal line is completed in any of the five blocks (even in different blocks) from the read-out numbers, YOU’RE THE WINNER of that round! SHOUT BINGO!",
-            twoLines: "Miss Candy will read out the numbers and you have to tap them on your sheet! SHOUT BINGO!<br><br>The second round is TWO LINES! This means when two horizontal lines are completed in any of the five blocks (even in different blocks) from the read-out numbers, YOU’RE THE WINNER of that round! SHOUT BINGO!",
-            fullHouse: "Miss Candy will read out the numbers and you have to tap them on your sheet! SHOUT BINGO!<br><br>The round is a FULL HOUSE! This means when you have completed a FULL BLOCK OF ALL THE NUMBERS from the read-out numbers, YOU’RE THE WINNER of that round! SHOUT BINGO!"
-        };
+        const rulesText = `Miss Candy will read out the numbers and you have to tap them on your sheet! SHOUT BINGO!
+
+The first round is ONE LINE! This means when ONE horizontal lines are completed in ANY of the five blocks (even in different blocks) from the read out numbers YOU’RE THE WINNER of that round! SHOUT BINGO!
+
+The second round is a FULL HOUSE! This means when you completed a FULL BLOCK OF ALL THE NUMBERS from the read out numbers YOU’RE THE WINNER of that round! SHOUT BINGO!
+
+AFTER EVERY ROUND WINS TAP THE NEXT ROUND TYPE!`;
 
         function showRules(mode) {
             pendingMode = mode;
-            document.getElementById('rulesContent').innerHTML = ruleSets[mode];
+            document.getElementById('rulesContent').textContent = rulesText;
             document.getElementById('rulesPopup').style.display = 'flex';
         }
 
@@ -122,7 +126,7 @@
             hasWon = false;
             document.getElementById('popupTitle').textContent = "BINGO!";
             document.getElementById('popupText').textContent = "Congratulations, you’re a winner!";
-            document.getElementById('modeStatus').textContent = `Round: ${mode.toUpperCase().replace('LINES', 'LINES')}`;
+            document.getElementById('modeStatus').textContent = `Round: ${mode.toUpperCase()}`;
             document.querySelectorAll('.game-mode').forEach(b => b.classList.toggle('game-mode-active', b.textContent.replace(/\s/g,'').toLowerCase() === mode.toLowerCase()));
         }
 
