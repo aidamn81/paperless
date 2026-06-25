@@ -1,210 +1,90 @@
 <!DOCTYPE html>
-<html lang="en-GB">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>👠 Candy HEALS's Bingo</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paperless Bingo</title>
     <style>
-        * { box-sizing: border-box; }
-        @keyframes neonGlow {
-            0% { box-shadow: 0 0 5px #9d4edd, 0 0 10px #9d4edd, 0 0 20px #9d4edd40; }
-            50% { box-shadow: 0 0 10px #c77dff, 0 0 20px #c77dff, 0 0 30px #c77dff60; }
-            100% { box-shadow: 0 0 5px #9d4edd, 0 0 10px #9d4edd, 0 0 20px #9d4edd40; }
+        body { background: #1a1a1a; color: #d4af37; font-family: 'Cinzel', serif; padding: 20px; }
+        .bingo-block { margin-bottom: 30px; border: 1px solid #d4af37; padding: 10px; }
+        .block-title { text-align: center; font-size: 1.2em; margin-bottom: 10px; }
+        .bingo-row { display: flex; justify-content: center; }
+        .bingo-cell { 
+            width: 40px; height: 40px; border: 1px solid #d4af37; 
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 14px;
         }
-        @keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7); } 70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(251, 191, 36, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); } }
-        @keyframes pinkPulse { 0% { opacity: 1; text-shadow: 0 0 5px #ff00ff, 0 0 10px #ff00ff; } 50% { opacity: 0.5; text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff; } 100% { opacity: 1; text-shadow: 0 0 5px #ff00ff, 0 0 10px #ff00ff; } }
-        
-        body { background: #000000; background-image: radial-gradient(circle at top, #2b0b47 0%, #000000 70%); color: #ffffff; margin: 0; padding: 0.5rem; font-family: 'Segoe UI', Roboto, sans-serif; }
-        .flash-text { animation: flash 1s infinite; color: #fbbf24; font-weight: bold; margin-bottom: 8px; font-size: 1.5rem; text-shadow: 0 0 10px #b45309; }
-        .pink-pulse { animation: pinkPulse 1.5s infinite; color: #ff80ff; font-weight: bold; margin-top: 10px; font-size: 0.9rem; text-align: center; }
-        .pulsing-ok { background: #fbbf24; color: #000; font-weight: bold; border: none; padding: 0.8rem 2.5rem; border-radius: 9999px; animation: pulse 2s infinite; cursor: pointer; margin-top: 1.5rem; }
-        .yellow-pulse { animation: flash 1s infinite; color: #fbbf24; font-weight: bold; }
-
-        #bingoLady { position: fixed; top: 1rem; right: 1rem; width: clamp(80px, 15vw, 140px); height: auto; z-index: 10; pointer-events: none; opacity: 0.95; border-radius: 8px; }
-        .follow-logo { max-width: 120px; width: 100%; height: auto; margin: 0.5rem auto; cursor: pointer; transition: transform 0.2s; display: block; }
-        .follow-logo:hover { transform: scale(1.05); }
-        .marked { background: rgba(199, 125, 255, 0.6) !important; border: 2px solid #c77dff !important; pointer-events: none; }
-        .bingo-cell { width: clamp(38px, 9vw, 52px); height: clamp(42px, 11vw, 58px); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: clamp(1rem, 3.5vw, 1.25rem); border: 1px solid #6a2cac; cursor: pointer; user-select: none; background: #120529; color: #e0aaff; }
-        .empty { background-color: #200b40; cursor: default; }
-        .bingo-row { display: flex; justify-content: center; gap: 1px; }
-        .bingo-block { width: fit-content; margin: 1rem auto; border: 2px solid #4b1b78; padding: 0.6rem; border-radius: 8px; background: #0a001a; animation: neonGlow 4s infinite ease-in-out; }
-        .block-title { text-align: center; color: #c77dff; font-size: 1rem; margin-bottom: 0.5rem; }
-        button { padding: 0.6rem 1.2rem; cursor: pointer; transition: all 0.2s; border-radius: 6px; }
-        .game-mode { background: #120529; border: 1px solid #6a2cac; color: #e0aaff; margin: 0.2rem; }
-        .game-mode-active { background: linear-gradient(90deg, #7b2cbf, #9d4edd); border-color: #c77dff; color: white; }
-        #onlinePlayers { max-height: 100px; overflow-y: auto; background: #120529; padding: 0.5rem; border-radius: 6px; margin-top: 0.5rem; font-size: 0.9rem; }
-        
-        #rulesPopup, #bingoPopup { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 999; padding: 1rem; }
-        .popup-box { background: #0a001a; border: 3px solid #c77dff; padding: 2rem; border-radius: 20px; text-align: center; box-shadow: 0 0 20px #9d4edd; max-width: 450px; }
+        .bingo-cell.marked { background: #d4af37; color: #1a1a1a; }
+        /* Surgical fix: Hidden empty cells */
+        .empty-cell { visibility: hidden; border: none; background: transparent; }
     </style>
 </head>
-<body class="bg-black min-h-screen flex flex-col items-center">
+<body>
 
-    <a href="instagram://user?username=candyheals" onclick="window.open('https://www.instagram.com/candyheals/', '_blank'); return true;">
-        <img src="follow.jpg" alt="Follow @candyheals" class="follow-logo">
-    </a>
+<div id="bingoCard"></div>
 
-    <img id="bingoLady" src="candy1.PNG" alt="Bingo Lady">
+<script>
+    const playerName = "Player1";
 
-    <header class="shadow p-4 w-full max-w-3xl rounded-md mt-2 bg-[#0a001a]">
-        <h1 class="text-xl font-bold text-center">🎀 Candy Bingo 🎀</h1>
-        <div id="playerInfo" class="text-center mt-2 text-[#c77dff]"></div>
-    </header>
+    function seededRandom(seed) {
+        return function() {
+            seed = (seed * 9301 + 49297) % 233280;
+            return seed / 233280;
+        };
+    }
 
-    <section class="mt-4 w-full max-w-3xl px-2">
-        <h2 class="text-sm text-center text-[#c77dff]">Currently Playing</h2>
-        <div id="onlinePlayers"></div>
-        <div class="flex flex-wrap justify-center mt-4">
-            <div class="flash-text w-full text-center">PICK YOUR BINGO ROUND!</div>
-            <button class="game-mode" onclick="openRules('oneLine')">ONE LINE</button>
-            <button class="game-mode" onclick="openRules('twoLines')">TWO LINES</button>
-            <button class="game-mode" onclick="openRules('fullHouse')">FULL HOUSE</button>
-            <div class="pink-pulse w-full">ONLY REFRESH YOUR CARD IF CANDY TELLS YOU TO!</div>
-        </div>
-        <div id="modeStatus" class="text-center mt-2 text-[#9d4edd] font-bold">Select a round!</div>
-    </section>
+    function getSeed() { return 12345; } // Change to randomize boards per user
 
-    <section class="mt-6 w-full max-w-3xl flex flex-col items-center">
-        <button onclick="refreshSheet()" class="mb-4 bg-red-900 px-6 py-2 rounded font-bold hover:bg-red-700">🔄 Refresh My Card</button>
-        <div id="bingoCard" class="flex flex-col items-center w-full"></div>
-    </section>
-
-    <div id="rulesPopup">
-        <div class="popup-box text-left">
-            <h2 class="text-2xl text-[#c77dff] font-bold mb-4 text-center">The rules:</h2>
-            <p class="mb-4">Miss Candy will read out the numbers and you have to tap them on your sheet!</p>
-            <p class="mb-4">The first round is ONE LINE! This means when ONE horizontal line is completed in ANY of the five blocks from the read-out numbers YOU’RE THE WINNER of that round! SHOUT BINGO!</p>
-            <p class="mb-4">The second round is TWO LINES! This means when TWO horizontal lines are completed in ANY of the five blocks (even in different blocks) from the read-out numbers YOU’RE THE WINNER of that round! SHOUT BINGO!</p>
-            <p class="mb-4">The third round is a FULL HOUSE! This means when you complete a FULL BLOCK OF ALL THE NUMBERS from the read-out numbers YOU’RE THE WINNER of that round! SHOUT BINGO!</p>
-            <p class="yellow-pulse font-bold text-center mb-6">AFTER EVERY WINNER - TAP THE NEXT ROUND TYPE!</p>
-            <div class="text-center">
-                <button class="pulsing-ok" onclick="closeRules()">OK</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="bingoPopup" onclick="this.style.display='none'">
-        <div class="popup-box">
-            <h2 class="text-3xl text-[#c77dff] font-bold mb-2">BINGO!</h2>
-            <p class="text-white">Congratulations you’re a winner!</p>
-        </div>
-    </div>
-
-    <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const playerName = (urlParams.get("name") || "Guest").trim();
-        let currentMode = localStorage.getItem(`mode_${playerName}`);
-        let hasWon = false;
-        let selectedMode = '';
-        document.getElementById("playerInfo").textContent = `Playing as: ${playerName}`;
-
-        function openRules(mode) {
-            selectedMode = mode;
-            document.getElementById('rulesPopup').style.display = 'flex';
+    function renderAllBlocks() {
+        const container = document.getElementById("bingoCard");
+        const rng = seededRandom(getSeed());
+        const marked = JSON.parse(localStorage.getItem(`marked_${playerName}`)) || {};
+        
+        let pool = [];
+        for (let i = 0; i < 9; i++) {
+            let range = [];
+            for (let j = 1; j <= 10; j++) range.push(i * 10 + j);
+            range.sort(() => rng() - 0.5);
+            pool.push(range);
         }
 
-        function closeRules() {
-            document.getElementById('rulesPopup').style.display = 'none';
-            setMode(selectedMode);
-        }
-
-        function seededRandom(seed) { let s = seed; return function() { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; } }
-        function getSeed() { const stored = localStorage.getItem(`seed_${playerName}`); if (stored) return parseInt(stored); const n = Math.floor(Math.random()*1000000); localStorage.setItem(`seed_${playerName}`, n); return n; }
-
-        function setMode(mode) {
-            currentMode = mode;
-            localStorage.setItem(`mode_${playerName}`, mode);
-            hasWon = false;
-            document.getElementById('modeStatus').textContent = `Round: ${mode.toUpperCase()}`;
-            document.querySelectorAll('.game-mode').forEach(b => b.classList.toggle('game-mode-active', b.textContent.replace(/\s/g,'').toLowerCase() === mode.toLowerCase()));
-        }
-
-        function checkWin() {
-            if(!currentMode || hasWon) return;
-            const blocks = document.querySelectorAll('.bingo-block');
-            let totalCompletedLines = 0;
-            let fullHouseAchieved = false;
+        for (let b = 1; b <= 5; b++) {
+            const blockDiv = document.createElement("div");
+            blockDiv.className = "bingo-block";
+            blockDiv.innerHTML = `<div class="block-title">Block ${b}</div>`;
             
-            blocks.forEach(block => {
-                const rows = Array.from(block.querySelectorAll('.bingo-row'));
-                const completedInThisBlock = rows.filter(r => {
-                    const cells = Array.from(r.children);
-                    // Only care about cells that have numbers (not empty)
-                    const activeCells = cells.filter(c => !c.classList.contains('empty'));
-                    return activeCells.length > 0 && activeCells.every(c => c.classList.contains('marked'));
-                }).length;
-                totalCompletedLines += completedInThisBlock;
+            for (let r = 0; r < 3; r++) {
+                const rowDiv = document.createElement("div");
+                rowDiv.className = "bingo-row";
+                let allCols = [0,1,2,3,4,5,6,7,8];
+                let emptyCols = allCols.sort(() => rng() - 0.5).slice(0, 4);
                 
-                const allCells = Array.from(block.querySelectorAll('.bingo-cell'));
-                const activeCells = allCells.filter(c => !c.classList.contains('empty'));
-                const markedActiveCells = activeCells.filter(c => c.classList.contains('marked'));
-                
-                if (markedActiveCells.length === activeCells.length && activeCells.length > 0) fullHouseAchieved = true;
-            });
-            
-            let win = false;
-            if (currentMode === 'oneLine' && totalCompletedLines >= 1) win = true;
-            else if (currentMode === 'twoLines' && totalCompletedLines >= 2) win = true;
-            else if (currentMode === 'fullHouse' && fullHouseAchieved) win = true;
-            
-            if(win) { hasWon = true; document.getElementById('bingoPopup').style.display = 'flex'; }
-        }
-
-        function refreshSheet() { localStorage.removeItem(`seed_${playerName}`); localStorage.removeItem(`marked_${playerName}`); window.location.reload(); }
-
-        function renderAllBlocks() {
-            const container = document.getElementById("bingoCard");
-            const rng = seededRandom(getSeed());
-            const marked = JSON.parse(localStorage.getItem(`marked_${playerName}`)) || {};
-            
-            let pool = [];
-            for (let i = 0; i < 9; i++) {
-                let range = [];
-                for (let j = 1; j <= 10; j++) range.push(i * 10 + j);
-                range.sort(() => rng() - 0.5);
-                pool.push(range);
-            }
-
-            for (let b = 1; b <= 5; b++) {
-                const blockDiv = document.createElement("div");
-                blockDiv.className = "bingo-block";
-                blockDiv.innerHTML = `<div class="block-title">Block ${b}</div>`;
-                
-                for (let r = 0; r < 3; r++) {
-                    const rowDiv = document.createElement("div");
-                    rowDiv.className = "bingo-row";
-                    let cols = [0,1,2,3,4,5,6,7,8].sort(() => rng() - 0.5).slice(0, 5);
-                    for (let c = 0; c < 9; c++) {
-                        const cell = document.createElement("div");
-                        const id = `b${b}r${r}c${c}`;
-                        if (cols.includes(c)) {
-                            cell.className = "bingo-cell";
-                            cell.textContent = pool[c].pop();
-                            if (marked[id]) cell.classList.add("marked");
-                            cell.onclick = () => { cell.classList.add("marked"); marked[id] = true; localStorage.setItem(`marked_${playerName}`, JSON.stringify(marked)); checkWin(); };
-                        } else {
-                            cell.className = "bingo-cell empty";
-                        }
-                        rowDiv.appendChild(cell);
+                for (let c = 0; c < 9; c++) {
+                    const cell = document.createElement("div");
+                    const id = `b${b}r${r}c${c}`;
+                    
+                    if (!emptyCols.includes(c)) {
+                        cell.className = "bingo-cell";
+                        cell.textContent = pool[c].pop();
+                        if (marked[id]) cell.classList.add("marked");
+                        cell.onclick = () => { 
+                            cell.classList.add("marked"); 
+                            marked[id] = true; 
+                            localStorage.setItem(`marked_${playerName}`, JSON.stringify(marked)); 
+                        };
+                    } else {
+                        // SURGICAL FIX APPLIED HERE
+                        cell.className = "bingo-cell empty-cell";
                     }
-                    blockDiv.appendChild(rowDiv);
+                    rowDiv.appendChild(cell);
                 }
-                container.appendChild(blockDiv);
+                blockDiv.appendChild(rowDiv);
             }
-            if(currentMode) setMode(currentMode);
+            container.appendChild(blockDiv);
         }
+    }
 
-        function syncPlayers() {
-            let list = JSON.parse(localStorage.getItem('players') || '{}');
-            list[playerName] = Date.now();
-            Object.keys(list).forEach(k => { if(Date.now() - list[k] > 10000) delete list[k]; });
-            localStorage.setItem('players', JSON.stringify(list));
-            document.getElementById('onlinePlayers').innerHTML = Object.keys(list).map(p => `• ${p}`).join('<br>');
-        }
-        setInterval(syncPlayers, 3000);
-        window.onload = () => { renderAllBlocks(); syncPlayers(); };
-    </script>
+    renderAllBlocks();
+</script>
 </body>
 </html>
