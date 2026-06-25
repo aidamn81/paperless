@@ -126,23 +126,29 @@
             const blocks = document.querySelectorAll('.bingo-block');
             let totalCompletedLines = 0;
             let fullHouseAchieved = false;
+            
             blocks.forEach(block => {
                 const rows = Array.from(block.querySelectorAll('.bingo-row'));
                 const completedInThisBlock = rows.filter(r => {
                     const cells = Array.from(r.children);
-                    const nonEmpty = cells.filter(c => !c.classList.contains('empty'));
-                    return nonEmpty.length > 0 && nonEmpty.every(c => c.classList.contains('marked'));
+                    // Only care about cells that have numbers (not empty)
+                    const activeCells = cells.filter(c => !c.classList.contains('empty'));
+                    return activeCells.length > 0 && activeCells.every(c => c.classList.contains('marked'));
                 }).length;
                 totalCompletedLines += completedInThisBlock;
+                
                 const allCells = Array.from(block.querySelectorAll('.bingo-cell'));
-                const markedNonEmpty = allCells.filter(c => !c.classList.contains('empty') && c.classList.contains('marked'));
-                const totalNonEmpty = allCells.filter(c => !c.classList.contains('empty'));
-                if (markedNonEmpty.length === totalNonEmpty.length && totalNonEmpty.length > 0) fullHouseAchieved = true;
+                const activeCells = allCells.filter(c => !c.classList.contains('empty'));
+                const markedActiveCells = activeCells.filter(c => c.classList.contains('marked'));
+                
+                if (markedActiveCells.length === activeCells.length && activeCells.length > 0) fullHouseAchieved = true;
             });
+            
             let win = false;
             if (currentMode === 'oneLine' && totalCompletedLines >= 1) win = true;
             else if (currentMode === 'twoLines' && totalCompletedLines >= 2) win = true;
             else if (currentMode === 'fullHouse' && fullHouseAchieved) win = true;
+            
             if(win) { hasWon = true; document.getElementById('bingoPopup').style.display = 'flex'; }
         }
 
