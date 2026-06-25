@@ -14,9 +14,11 @@
         }
         @keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
         @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7); } 70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(251, 191, 36, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); } }
+        @keyframes pinkPulse { 0% { opacity: 1; text-shadow: 0 0 5px #ff00ff, 0 0 10px #ff00ff; } 50% { opacity: 0.5; text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff; } 100% { opacity: 1; text-shadow: 0 0 5px #ff00ff, 0 0 10px #ff00ff; } }
         
         body { background: #000000; background-image: radial-gradient(circle at top, #2b0b47 0%, #000000 70%); color: #ffffff; margin: 0; padding: 0.5rem; font-family: 'Segoe UI', Roboto, sans-serif; }
         .flash-text { animation: flash 1s infinite; color: #fbbf24; font-weight: bold; margin-bottom: 8px; font-size: 1.5rem; text-shadow: 0 0 10px #b45309; }
+        .pink-pulse { animation: pinkPulse 1.5s infinite; color: #ff80ff; font-weight: bold; margin-top: 10px; font-size: 0.9rem; text-align: center; }
         .pulsing-ok { background: #fbbf24; color: #000; font-weight: bold; border: none; padding: 0.8rem 2.5rem; border-radius: 9999px; animation: pulse 2s infinite; cursor: pointer; margin-top: 1.5rem; }
         .yellow-pulse { animation: flash 1s infinite; color: #fbbf24; font-weight: bold; }
 
@@ -25,7 +27,6 @@
         .follow-logo:hover { transform: scale(1.05); }
         .marked { background: rgba(199, 125, 255, 0.6) !important; border: 2px solid #c77dff !important; pointer-events: none; }
         .bingo-cell { width: clamp(38px, 9vw, 52px); height: clamp(42px, 11vw, 58px); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: clamp(1rem, 3.5vw, 1.25rem); border: 1px solid #6a2cac; cursor: pointer; user-select: none; background: #120529; color: #e0aaff; }
-        .empty { background-color: #200b40; cursor: default; }
         .bingo-row { display: flex; justify-content: center; gap: 1px; }
         .bingo-block { width: fit-content; margin: 1rem auto; border: 2px solid #4b1b78; padding: 0.6rem; border-radius: 8px; background: #0a001a; animation: neonGlow 4s infinite ease-in-out; }
         .block-title { text-align: center; color: #c77dff; font-size: 1rem; margin-bottom: 0.5rem; }
@@ -59,6 +60,7 @@
             <button class="game-mode" onclick="openRules('oneLine')">ONE LINE</button>
             <button class="game-mode" onclick="openRules('twoLines')">TWO LINES</button>
             <button class="game-mode" onclick="openRules('fullHouse')">FULL HOUSE</button>
+            <div class="pink-pulse w-full">ONLY REFRESH YOUR CARD IF CANDY TELLS YOU TO!</div>
         </div>
         <div id="modeStatus" class="text-center mt-2 text-[#9d4edd] font-bold">Select a round!</div>
     </section>
@@ -127,14 +129,11 @@
                 const rows = Array.from(block.querySelectorAll('.bingo-row'));
                 const completedInThisBlock = rows.filter(r => {
                     const cells = Array.from(r.children);
-                    const nonEmptyCells = cells.filter(c => !c.classList.contains('empty'));
-                    return nonEmptyCells.length > 0 && nonEmptyCells.every(c => c.classList.contains('marked'));
+                    return cells.every(c => c.classList.contains('marked'));
                 }).length;
                 totalCompletedLines += completedInThisBlock;
                 const allCells = Array.from(block.querySelectorAll('.bingo-cell'));
-                const markedNonEmpty = allCells.filter(c => !c.classList.contains('empty') && c.classList.contains('marked'));
-                const totalNonEmpty = allCells.filter(c => !c.classList.contains('empty'));
-                if (markedNonEmpty.length === totalNonEmpty.length && totalNonEmpty.length > 0) fullHouseAchieved = true;
+                if (allCells.every(c => c.classList.contains('marked'))) fullHouseAchieved = true;
             });
             let win = false;
             if (currentMode === 'oneLine' && totalCompletedLines >= 1) win = true;
@@ -149,6 +148,7 @@
             const container = document.getElementById("bingoCard");
             const rng = seededRandom(getSeed());
             const marked = JSON.parse(localStorage.getItem(`marked_${playerName}`)) || {};
+            
             let pool = [];
             for (let i = 0; i < 9; i++) {
                 let range = [];
@@ -156,25 +156,22 @@
                 range.sort(() => rng() - 0.5);
                 pool.push(range);
             }
+
             for (let b = 1; b <= 5; b++) {
                 const blockDiv = document.createElement("div");
                 blockDiv.className = "bingo-block";
                 blockDiv.innerHTML = `<div class="block-title">Block ${b}</div>`;
+                
                 for (let r = 0; r < 3; r++) {
                     const rowDiv = document.createElement("div");
                     rowDiv.className = "bingo-row";
-                    let cols = [0,1,2,3,4,5,6,7,8].sort(() => rng() - 0.5).slice(0, 5);
                     for (let c = 0; c < 9; c++) {
                         const cell = document.createElement("div");
                         const id = `b${b}r${r}c${c}`;
-                        if (cols.includes(c)) {
-                            cell.className = "bingo-cell";
-                            cell.textContent = pool[c].pop();
-                            if (marked[id]) cell.classList.add("marked");
-                            cell.onclick = () => { cell.classList.add("marked"); marked[id] = true; localStorage.setItem(`marked_${playerName}`, JSON.stringify(marked)); checkWin(); };
-                        } else {
-                            cell.className = "bingo-cell empty";
-                        }
+                        cell.className = "bingo-cell";
+                        cell.textContent = pool[c].pop();
+                        if (marked[id]) cell.classList.add("marked");
+                        cell.onclick = () => { cell.classList.add("marked"); marked[id] = true; localStorage.setItem(`marked_${playerName}`, JSON.stringify(marked)); checkWin(); };
                         rowDiv.appendChild(cell);
                     }
                     blockDiv.appendChild(rowDiv);
@@ -183,6 +180,7 @@
             }
             if(currentMode) setMode(currentMode);
         }
+
         function syncPlayers() {
             let list = JSON.parse(localStorage.getItem('players') || '{}');
             list[playerName] = Date.now();
