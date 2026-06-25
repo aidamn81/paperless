@@ -25,13 +25,9 @@
         #bingoLady { position: fixed; top: 1rem; right: 1rem; width: clamp(80px, 15vw, 140px); height: auto; z-index: 10; pointer-events: none; opacity: 0.95; border-radius: 8px; }
         .follow-logo { max-width: 120px; width: 100%; height: auto; margin: 0.5rem auto; cursor: pointer; transition: transform 0.2s; display: block; }
         .follow-logo:hover { transform: scale(1.05); }
-        
-        .marked { background: rgba(199, 125, 255, 0.6) !important; border: 2px solid #c77dff !important; }
+        .marked { background: rgba(199, 125, 255, 0.6) !important; border: 2px solid #c77dff !important; pointer-events: none; }
         .bingo-cell { width: clamp(38px, 9vw, 52px); height: clamp(42px, 11vw, 58px); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: clamp(1rem, 3.5vw, 1.25rem); border: 1px solid #6a2cac; cursor: pointer; user-select: none; background: #120529; color: #e0aaff; }
-        
-        /* Fixed empty cell visibility */
-        .empty { visibility: hidden; pointer-events: none; border: none; background: transparent; }
-        
+        .empty { background-color: #200b40; cursor: default; }
         .bingo-row { display: flex; justify-content: center; gap: 1px; }
         .bingo-block { width: fit-content; margin: 1rem auto; border: 2px solid #4b1b78; padding: 0.6rem; border-radius: 8px; background: #0a001a; animation: neonGlow 4s infinite ease-in-out; }
         .block-title { text-align: center; color: #c77dff; font-size: 1rem; margin-bottom: 0.5rem; }
@@ -135,6 +131,7 @@
                 const rows = Array.from(block.querySelectorAll('.bingo-row'));
                 const completedInThisBlock = rows.filter(r => {
                     const cells = Array.from(r.children);
+                    // Only care about cells that have numbers (not empty)
                     const activeCells = cells.filter(c => !c.classList.contains('empty'));
                     return activeCells.length > 0 && activeCells.every(c => c.classList.contains('marked'));
                 }).length;
