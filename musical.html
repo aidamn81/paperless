@@ -18,24 +18,21 @@
         body { background: #000000; background-image: radial-gradient(circle at top, #2b0b47 0%, #000000 70%); color: #ffffff; margin: 0; padding: 0.5rem; font-family: 'Segoe UI', Roboto, sans-serif; }
         .flash-text { animation: flash 1s infinite; color: #fbbf24; font-weight: bold; margin-bottom: 8px; font-size: 1.5rem; text-shadow: 0 0 10px #b45309; }
         .pulsing-ok { background: #fbbf24; color: #000; font-weight: bold; border: none; padding: 0.8rem 2.5rem; border-radius: 9999px; animation: pulse 2s infinite; cursor: pointer; margin-top: 1.5rem; }
-        .yellow-pulse { animation: flash 1s infinite; color: #fbbf24; font-weight: bold; }
-
+        
         #bingoLady { position: fixed; top: 1rem; right: 1rem; width: clamp(80px, 15vw, 140px); height: auto; z-index: 10; pointer-events: none; opacity: 0.95; border-radius: 8px; }
         .follow-logo { max-width: 120px; width: 100%; height: auto; margin: 0.5rem auto; cursor: pointer; transition: transform 0.2s; display: block; }
-        .follow-logo:hover { transform: scale(1.05); }
-        .marked { background: rgba(199, 125, 255, 0.6) !important; border: 2px solid #c77dff !important; pointer-events: none; }
         
-        /* WIDER GRID */
-        .bingo-cell { width: clamp(60px, 12vw, 80px); height: clamp(50px, 10vw, 70px); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: clamp(0.6rem, 1.5vw, 0.75rem); border: 1px solid #6a2cac; cursor: pointer; user-select: none; background: #120529; color: #e0aaff; text-align: center; padding: 4px; line-height: 1.1; }
+        .marked { background: rgba(199, 125, 255, 0.8) !important; border: 2px solid #fff !important; color: white !important; }
+        .bingo-cell { width: clamp(35px, 8vw, 45px); height: clamp(45px, 10vw, 55px); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: clamp(0.5rem, 1.5vw, 0.7rem); border: 1px solid #6a2cac; cursor: pointer; user-select: none; background: #120529; color: #e0aaff; text-align: center; padding: 2px; }
         .empty { visibility: hidden; pointer-events: none; border: none; background: transparent; }
-        .bingo-row { display: flex; justify-content: center; gap: 2px; margin-bottom: 2px; }
-        .bingo-block { width: fit-content; margin: 1rem auto; border: 2px solid #4b1b78; padding: 1rem; border-radius: 12px; background: #0a001a; animation: neonGlow 4s infinite ease-in-out; }
-        .block-title { text-align: center; color: #c77dff; font-size: 1.2rem; margin-bottom: 0.8rem; font-weight: bold; }
+        
+        .bingo-row { display: flex; justify-content: center; gap: 1px; margin-bottom: 1px; }
+        .bingo-block { width: fit-content; margin: 1rem auto; border: 2px solid #4b1b78; padding: 0.5rem; border-radius: 8px; background: #0a001a; animation: neonGlow 4s infinite ease-in-out; }
+        .block-title { text-align: center; color: #c77dff; font-size: 1rem; margin-bottom: 0.5rem; font-weight: bold; }
         
         button { padding: 0.6rem 1.2rem; cursor: pointer; transition: all 0.2s; border-radius: 6px; }
         .game-mode { background: #120529; border: 1px solid #6a2cac; color: #e0aaff; margin: 0.2rem; }
         .game-mode-active { background: linear-gradient(90deg, #7b2cbf, #9d4edd); border-color: #c77dff; color: white; }
-        #onlinePlayers { max-height: 100px; overflow-y: auto; background: #120529; padding: 0.5rem; border-radius: 6px; margin-top: 0.5rem; font-size: 0.9rem; }
         
         #rulesPopup, #bingoPopup { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 999; padding: 1rem; }
         .popup-box { background: #0a001a; border: 3px solid #c77dff; padding: 2rem; border-radius: 20px; text-align: center; box-shadow: 0 0 20px #9d4edd; max-width: 450px; }
@@ -43,52 +40,16 @@
 </head>
 <body class="bg-black min-h-screen flex flex-col items-center">
 
-    <a href="instagram://user?username=candyheals" onclick="window.open('https://www.instagram.com/candyheals/', '_blank'); return true;">
-        <img src="follow.jpg" alt="Follow @candyheals" class="follow-logo">
-    </a>
-
     <img id="bingoLady" src="candy1.PNG" alt="Bingo Lady">
 
     <header class="shadow p-4 w-full max-w-3xl rounded-md mt-2 bg-[#0a001a]">
         <h1 class="text-xl font-bold text-center">🎀 MUSICAL BINGO 🎀</h1>
-        <div id="playerInfo" class="text-center mt-2 text-[#c77dff]"></div>
     </header>
 
-    <section class="mt-4 w-full max-w-3xl px-2">
-        <h2 class="text-sm text-center text-[#c77dff]">Currently Playing</h2>
-        <div id="onlinePlayers"></div>
-        <div class="flex flex-wrap justify-center mt-4">
-            <div class="flash-text w-full text-center">PICK YOUR BINGO ROUND!</div>
-            <button class="game-mode" onclick="openRules('oneLine')">ONE LINE</button>
-            <button class="game-mode" onclick="openRules('twoLines')">TWO LINES</button>
-            <button class="game-mode" onclick="openRules('fullHouse')">FULL HOUSE</button>
-        </div>
-        <div id="modeStatus" class="text-center mt-2 text-[#9d4edd] font-bold">Select a round!</div>
-    </section>
-
-    <section class="mt-6 w-full max-w-3xl flex flex-col items-center">
+    <section class="mt-4 w-full max-w-3xl flex flex-col items-center">
         <button onclick="refreshSheet()" class="mb-4 bg-red-900 px-6 py-2 rounded font-bold hover:bg-red-700">🔄 New Unique Card</button>
         <div id="bingoCard" class="flex flex-col items-center w-full"></div>
     </section>
-
-    <div id="rulesPopup">
-        <div class="popup-box text-left">
-            <h2 class="text-2xl text-[#c77dff] font-bold mb-4 text-center">The rules:</h2>
-            <p class="mb-4">The first round is ONE LINE! This means when ONE horizontal, vertical, or diagonal line is completed, SHOUT BINGO!</p>
-            <p class="mb-4">The second round is TWO LINES! This means when TWO lines are completed, SHOUT BINGO!</p>
-            <p class="mb-4">The third round is a FULL HOUSE! Complete all the songs on your card to win!</p>
-            <div class="text-center">
-                <button class="pulsing-ok" onclick="closeRules()">OK</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="bingoPopup" onclick="this.style.display='none'">
-        <div class="popup-box">
-            <h2 class="text-3xl text-[#c77dff] font-bold mb-2">BINGO!</h2>
-            <p class="text-white">Congratulations you’re a winner!</p>
-        </div>
-    </div>
 
     <script>
         const songList = ["Dancing queen", "Believe", "Music", "Spinning around", "The best", "Every time we touch", "Rain on me", "Dancing on my own", "S&M", "Baby one more time", "Break my soul", "Blinding lights", "Dance the night", "Good 4 you", "Sweet but psycho", "Flowers", "Whenever, wherever", "I’m outta love", "I want it that way", "Bootylicious", "Milkshake", "Unwritten", "Espresso", "Untouched", "Man! I feel like a woman", "Heart of glass", "Disco inferno", "You make me feel", "Who do you think you are", "What is love", "Dirrrrty", "Bad Romance", "Play", "I wanna dance with somebody", "Rolling into deep", "Happy", "Mr brightside", "Toxic", "Don’t stop the music", "Midnight sun", "Respect", "Hung up", "All the things she said", "Sexy back", "Midnight sky", "Tik Tok", "I kissed a girl", "Murder on the dance floor", "Rehab", "Get the party started", "Hot to go", "I’m just a girl", "Sweet dreams", "Push the button", "Danceteria", "Crazy in love", "I gotta feeling", "Abracadabra", "Be my lover", "Proud Mary", "Padam padam", "Tattoo", "Mercy", "Fabulous", "Gimme gimme gimme", "Knock on wood", "Barbie girl", "New rules", "Break free", "Beat it", "Call me", "2 be loved", "Strong enough", "You spin me round", "Lady marmalade"];
@@ -96,44 +57,15 @@
         const urlParams = new URLSearchParams(window.location.search);
         const playerName = (urlParams.get("name") || "Guest").trim();
         
-        // Simple Hash function to make seeds unique to the name
         function hashName(str) { let hash = 0; for (let i = 0; i < str.length; i++) hash = ((hash << 5) - hash) + str.charCodeAt(i); return Math.abs(hash); }
-        
-        let currentMode = localStorage.getItem(`mode_${playerName}`);
-        let hasWon = false;
-        document.getElementById("playerInfo").textContent = `Playing as: ${playerName}`;
-
-        function openRules(mode) { selectedMode = mode; document.getElementById('rulesPopup').style.display = 'flex'; }
-        function closeRules() { document.getElementById('rulesPopup').style.display = 'none'; setMode(selectedMode); }
-
-        function seededRandom(seed) { 
-            let s = seed; 
-            return function() { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; } 
-        }
+        function seededRandom(seed) { let s = seed; return function() { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; } }
 
         function getCardSeed() {
             const stored = localStorage.getItem(`seed_${playerName}`);
             if (stored) return parseInt(stored);
-            const n = hashName(playerName + Date.now()); // New seed based on time + name
+            const n = hashName(playerName + Date.now());
             localStorage.setItem(`seed_${playerName}`, n);
             return n;
-        }
-
-        function setMode(mode) {
-            currentMode = mode;
-            localStorage.setItem(`mode_${playerName}`, mode);
-            hasWon = false;
-            document.getElementById('modeStatus').textContent = `Round: ${mode.toUpperCase()}`;
-            document.querySelectorAll('.game-mode').forEach(b => b.classList.toggle('game-mode-active', b.textContent.replace(/\s/g,'').toLowerCase() === mode.toLowerCase()));
-        }
-
-        function checkWin() {
-            if(!currentMode || hasWon) return;
-            // Simplified win logic for 5x5
-            const cells = document.querySelectorAll('.bingo-cell');
-            let marked = Array.from(cells).map(c => c.classList.contains('marked'));
-            // Logic would go here to check 5x5 rows/cols/diagonals
-            if(Math.random() < 0.001) { hasWon = true; document.getElementById('bingoPopup').style.display = 'flex'; }
         }
 
         function refreshSheet() { 
@@ -142,37 +74,45 @@
             window.location.reload(); 
         }
 
-        function renderCard() {
+        function renderBlocks() {
             const container = document.getElementById("bingoCard");
             const rng = seededRandom(getCardSeed());
             const marked = JSON.parse(localStorage.getItem(`marked_${playerName}`)) || {};
             
-            // Shuffle and pick 25 songs
-            let pool = [...songList].sort(() => rng() - 0.5).slice(0, 25);
+            // Shuffle full song list
+            let pool = [...songList].sort(() => rng() - 0.5);
 
-            const block = document.createElement("div");
-            block.className = "bingo-block";
-            block.innerHTML = `<div class="block-title">Your Unique Card</div>`;
-            
-            for (let r = 0; r < 5; r++) {
-                const row = document.createElement("div");
-                row.className = "bingo-row";
-                for (let c = 0; c < 5; c++) {
-                    const cell = document.createElement("div");
-                    const idx = r * 5 + c;
-                    const id = `c${idx}`;
-                    cell.className = "bingo-cell";
-                    cell.textContent = pool[idx];
-                    if (marked[id]) cell.classList.add("marked");
-                    cell.onclick = () => { cell.classList.add("marked"); marked[id] = true; localStorage.setItem(`marked_${playerName}`, JSON.stringify(marked)); checkWin(); };
-                    row.appendChild(cell);
+            for (let b = 1; b <= 3; b++) {
+                const blockDiv = document.createElement("div");
+                blockDiv.className = "bingo-block";
+                blockDiv.innerHTML = `<div class="block-title">Block ${b}</div>`;
+                
+                for (let r = 0; r < 3; r++) {
+                    const rowDiv = document.createElement("div");
+                    rowDiv.className = "bingo-row";
+                    // Pick 4 random slots to be empty per row (9 total slots per row, 5 active)
+                    let emptySlots = [0,1,2,3,4,5,6,7,8].sort(() => rng() - 0.5).slice(0, 4);
+                    
+                    for (let c = 0; c < 9; c++) {
+                        const cell = document.createElement("div");
+                        const id = `b${b}r${r}c${c}`;
+                        if (emptySlots.includes(c)) {
+                            cell.className = "bingo-cell empty";
+                        } else {
+                            cell.className = "bingo-cell";
+                            cell.textContent = pool.pop() || "Hit!";
+                            if (marked[id]) cell.classList.add("marked");
+                            cell.onclick = () => { cell.classList.add("marked"); marked[id] = true; localStorage.setItem(`marked_${playerName}`, JSON.stringify(marked)); };
+                        }
+                        rowDiv.appendChild(cell);
+                    }
+                    blockDiv.appendChild(rowDiv);
                 }
-                block.appendChild(row);
+                container.appendChild(blockDiv);
             }
-            container.appendChild(block);
         }
 
-        window.onload = () => { renderCard(); };
+        window.onload = renderBlocks;
     </script>
 </body>
 </html>
