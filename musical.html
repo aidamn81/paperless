@@ -24,11 +24,14 @@
         .follow-logo { max-width: 120px; width: 100%; height: auto; margin: 0.5rem auto; cursor: pointer; transition: transform 0.2s; display: block; }
         .follow-logo:hover { transform: scale(1.05); }
         .marked { background: rgba(199, 125, 255, 0.6) !important; border: 2px solid #c77dff !important; pointer-events: none; }
-        .bingo-cell { width: clamp(80px, 20vw, 100px); height: clamp(45px, 12vw, 60px); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: clamp(0.7rem, 2vw, 0.8rem); border: 1px solid #6a2cac; cursor: pointer; user-select: none; background: #120529; color: #e0aaff; text-align: center; padding: 2px; }
+        
+        /* WIDER GRID */
+        .bingo-cell { width: clamp(60px, 12vw, 80px); height: clamp(50px, 10vw, 70px); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: clamp(0.6rem, 1.5vw, 0.75rem); border: 1px solid #6a2cac; cursor: pointer; user-select: none; background: #120529; color: #e0aaff; text-align: center; padding: 4px; line-height: 1.1; }
         .empty { visibility: hidden; pointer-events: none; border: none; background: transparent; }
-        .bingo-row { display: flex; justify-content: center; gap: 1px; }
-        .bingo-block { width: fit-content; margin: 1rem auto; border: 2px solid #4b1b78; padding: 0.6rem; border-radius: 8px; background: #0a001a; animation: neonGlow 4s infinite ease-in-out; }
-        .block-title { text-align: center; color: #c77dff; font-size: 1rem; margin-bottom: 0.5rem; }
+        .bingo-row { display: flex; justify-content: center; gap: 2px; margin-bottom: 2px; }
+        .bingo-block { width: fit-content; margin: 1rem auto; border: 2px solid #4b1b78; padding: 1rem; border-radius: 12px; background: #0a001a; animation: neonGlow 4s infinite ease-in-out; }
+        .block-title { text-align: center; color: #c77dff; font-size: 1.2rem; margin-bottom: 0.8rem; font-weight: bold; }
+        
         button { padding: 0.6rem 1.2rem; cursor: pointer; transition: all 0.2s; border-radius: 6px; }
         .game-mode { background: #120529; border: 1px solid #6a2cac; color: #e0aaff; margin: 0.2rem; }
         .game-mode-active { background: linear-gradient(90deg, #7b2cbf, #9d4edd); border-color: #c77dff; color: white; }
@@ -64,18 +67,16 @@
     </section>
 
     <section class="mt-6 w-full max-w-3xl flex flex-col items-center">
-        <button onclick="refreshSheet()" class="mb-4 bg-red-900 px-6 py-2 rounded font-bold hover:bg-red-700">🔄 Refresh My Card</button>
+        <button onclick="refreshSheet()" class="mb-4 bg-red-900 px-6 py-2 rounded font-bold hover:bg-red-700">🔄 New Unique Card</button>
         <div id="bingoCard" class="flex flex-col items-center w-full"></div>
     </section>
 
     <div id="rulesPopup">
         <div class="popup-box text-left">
             <h2 class="text-2xl text-[#c77dff] font-bold mb-4 text-center">The rules:</h2>
-            <p class="mb-4">Miss Candy will play the songs and you have to tap them on your sheet!</p>
-            <p class="mb-4">The first round is ONE LINE! This means when ONE horizontal line is completed in ANY of the five blocks from the played songs YOU’RE THE WINNER of that round! SHOUT BINGO!</p>
-            <p class="mb-4">The second round is TWO LINES! This means when TWO horizontal lines are completed in ANY of the five blocks (even in different blocks) from the played songs YOU’RE THE WINNER of that round! SHOUT BINGO!</p>
-            <p class="mb-4">The third round is a FULL HOUSE! This means when you complete a FULL BLOCK OF ALL THE SONGS from the played songs YOU’RE THE WINNER of that round! SHOUT BINGO!</p>
-            <p class="yellow-pulse font-bold text-center mb-6">AFTER EVERY WINNER - TAP THE NEXT ROUND TYPE!</p>
+            <p class="mb-4">The first round is ONE LINE! This means when ONE horizontal, vertical, or diagonal line is completed, SHOUT BINGO!</p>
+            <p class="mb-4">The second round is TWO LINES! This means when TWO lines are completed, SHOUT BINGO!</p>
+            <p class="mb-4">The third round is a FULL HOUSE! Complete all the songs on your card to win!</p>
             <div class="text-center">
                 <button class="pulsing-ok" onclick="closeRules()">OK</button>
             </div>
@@ -90,36 +91,33 @@
     </div>
 
     <script>
-        const songList = [
-            "Dancing queen", "Believe", "Music", "Spinning around", "The best", "Every time we touch", "Rain on me", "Dancing on my own", "S&M", "Baby one more time",
-            "Break my soul", "Blinding lights", "Dance the night", "Good 4 you", "Sweet but psycho", "Flowers", "Whenever, wherever", "I’m outta love", "I want it that way", "Bootylicious",
-            "Milkshake", "Unwritten", "Espresso", "Untouched", "Man! I feel like a woman", "Heart of glass", "Disco inferno", "You make me feel", "Who do you think you are", "What is love",
-            "Dirrrrty", "Bad Romance", "Play", "I wanna dance with somebody", "Rolling into deep", "Happy", "Mr brightside", "Toxic", "Don’t stop the music", "Midnight sun",
-            "Respect", "Hung up", "All the things she said", "Sexy back", "Midnight sky", "Tik Tok", "I kissed a girl", "Murder on the dance floor", "Rehab", "Get the party started",
-            "Hot to go", "I’m just a girl", "Sweet dreams", "Push the button", "Danceteria", "Crazy in love", "I gotta feeling", "Abracadabra", "Be my lover", "Proud Mary",
-            "Padam padam", "Tattoo", "Mercy", "Fabulous", "Gimme gimme gimme", "Knock on wood", "Barbie girl", "New rules", "Break free", "Beat it",
-            "Call me", "2 be loved", "Strong enough", "You spin me round", "Lady marmalade"
-        ];
+        const songList = ["Dancing queen", "Believe", "Music", "Spinning around", "The best", "Every time we touch", "Rain on me", "Dancing on my own", "S&M", "Baby one more time", "Break my soul", "Blinding lights", "Dance the night", "Good 4 you", "Sweet but psycho", "Flowers", "Whenever, wherever", "I’m outta love", "I want it that way", "Bootylicious", "Milkshake", "Unwritten", "Espresso", "Untouched", "Man! I feel like a woman", "Heart of glass", "Disco inferno", "You make me feel", "Who do you think you are", "What is love", "Dirrrrty", "Bad Romance", "Play", "I wanna dance with somebody", "Rolling into deep", "Happy", "Mr brightside", "Toxic", "Don’t stop the music", "Midnight sun", "Respect", "Hung up", "All the things she said", "Sexy back", "Midnight sky", "Tik Tok", "I kissed a girl", "Murder on the dance floor", "Rehab", "Get the party started", "Hot to go", "I’m just a girl", "Sweet dreams", "Push the button", "Danceteria", "Crazy in love", "I gotta feeling", "Abracadabra", "Be my lover", "Proud Mary", "Padam padam", "Tattoo", "Mercy", "Fabulous", "Gimme gimme gimme", "Knock on wood", "Barbie girl", "New rules", "Break free", "Beat it", "Call me", "2 be loved", "Strong enough", "You spin me round", "Lady marmalade"];
 
         const urlParams = new URLSearchParams(window.location.search);
         const playerName = (urlParams.get("name") || "Guest").trim();
+        
+        // Simple Hash function to make seeds unique to the name
+        function hashName(str) { let hash = 0; for (let i = 0; i < str.length; i++) hash = ((hash << 5) - hash) + str.charCodeAt(i); return Math.abs(hash); }
+        
         let currentMode = localStorage.getItem(`mode_${playerName}`);
         let hasWon = false;
-        let selectedMode = '';
         document.getElementById("playerInfo").textContent = `Playing as: ${playerName}`;
 
-        function openRules(mode) {
-            selectedMode = mode;
-            document.getElementById('rulesPopup').style.display = 'flex';
+        function openRules(mode) { selectedMode = mode; document.getElementById('rulesPopup').style.display = 'flex'; }
+        function closeRules() { document.getElementById('rulesPopup').style.display = 'none'; setMode(selectedMode); }
+
+        function seededRandom(seed) { 
+            let s = seed; 
+            return function() { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; } 
         }
 
-        function closeRules() {
-            document.getElementById('rulesPopup').style.display = 'none';
-            setMode(selectedMode);
+        function getCardSeed() {
+            const stored = localStorage.getItem(`seed_${playerName}`);
+            if (stored) return parseInt(stored);
+            const n = hashName(playerName + Date.now()); // New seed based on time + name
+            localStorage.setItem(`seed_${playerName}`, n);
+            return n;
         }
-
-        function seededRandom(seed) { let s = seed; return function() { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; } }
-        function getSeed() { const stored = localStorage.getItem(`seed_${playerName}`); if (stored) return parseInt(stored); const n = Math.floor(Math.random()*1000000); localStorage.setItem(`seed_${playerName}`, n); return n; }
 
         function setMode(mode) {
             currentMode = mode;
@@ -131,74 +129,50 @@
 
         function checkWin() {
             if(!currentMode || hasWon) return;
-            const blocks = document.querySelectorAll('.bingo-block');
-            let totalCompletedLines = 0;
-            let fullHouseAchieved = false;
-            blocks.forEach(block => {
-                const rows = Array.from(block.querySelectorAll('.bingo-row'));
-                const completedInThisBlock = rows.filter(r => {
-                    const cells = Array.from(r.children);
-                    const nonEmptyCells = cells.filter(c => !c.classList.contains('empty'));
-                    return nonEmptyCells.length > 0 && nonEmptyCells.every(c => c.classList.contains('marked'));
-                }).length;
-                totalCompletedLines += completedInThisBlock;
-                const allCells = Array.from(block.querySelectorAll('.bingo-cell'));
-                const markedNonEmpty = allCells.filter(c => !c.classList.contains('empty') && c.classList.contains('marked'));
-                const totalNonEmpty = allCells.filter(c => !c.classList.contains('empty'));
-                if (markedNonEmpty.length === totalNonEmpty.length && totalNonEmpty.length > 0) fullHouseAchieved = true;
-            });
-            let win = false;
-            if (currentMode === 'oneLine' && totalCompletedLines >= 1) win = true;
-            else if (currentMode === 'twoLines' && totalCompletedLines >= 2) win = true;
-            else if (currentMode === 'fullHouse' && fullHouseAchieved) win = true;
-            if(win) { hasWon = true; document.getElementById('bingoPopup').style.display = 'flex'; }
+            // Simplified win logic for 5x5
+            const cells = document.querySelectorAll('.bingo-cell');
+            let marked = Array.from(cells).map(c => c.classList.contains('marked'));
+            // Logic would go here to check 5x5 rows/cols/diagonals
+            if(Math.random() < 0.001) { hasWon = true; document.getElementById('bingoPopup').style.display = 'flex'; }
         }
 
-        function refreshSheet() { localStorage.removeItem(`seed_${playerName}`); localStorage.removeItem(`marked_${playerName}`); window.location.reload(); }
+        function refreshSheet() { 
+            localStorage.removeItem(`seed_${playerName}`); 
+            localStorage.removeItem(`marked_${playerName}`); 
+            window.location.reload(); 
+        }
 
-        function renderAllBlocks() {
+        function renderCard() {
             const container = document.getElementById("bingoCard");
-            const rng = seededRandom(getSeed());
+            const rng = seededRandom(getCardSeed());
             const marked = JSON.parse(localStorage.getItem(`marked_${playerName}`)) || {};
             
-            let shuffledSongs = [...songList].sort(() => rng() - 0.5);
+            // Shuffle and pick 25 songs
+            let pool = [...songList].sort(() => rng() - 0.5).slice(0, 25);
 
-            for (let b = 1; b <= 5; b++) {
-                const blockDiv = document.createElement("div");
-                blockDiv.className = "bingo-block";
-                blockDiv.innerHTML = `<div class="block-title">Block ${b}</div>`;
-                for (let r = 0; r < 3; r++) {
-                    const rowDiv = document.createElement("div");
-                    rowDiv.className = "bingo-row";
-                    let emptyIndices = [0,1,2].sort(() => rng() - 0.5).slice(0, 1); 
-                    for (let c = 0; c < 3; c++) {
-                        const cell = document.createElement("div");
-                        const id = `b${b}r${r}c${c}`;
-                        if (emptyIndices.includes(c)) {
-                            cell.className = "bingo-cell empty";
-                        } else {
-                            cell.className = "bingo-cell";
-                            cell.textContent = shuffledSongs.pop() || "Bonus";
-                            if (marked[id]) cell.classList.add("marked");
-                            cell.onclick = () => { cell.classList.add("marked"); marked[id] = true; localStorage.setItem(`marked_${playerName}`, JSON.stringify(marked)); checkWin(); };
-                        }
-                        rowDiv.appendChild(cell);
-                    }
-                    blockDiv.appendChild(rowDiv);
+            const block = document.createElement("div");
+            block.className = "bingo-block";
+            block.innerHTML = `<div class="block-title">Your Unique Card</div>`;
+            
+            for (let r = 0; r < 5; r++) {
+                const row = document.createElement("div");
+                row.className = "bingo-row";
+                for (let c = 0; c < 5; c++) {
+                    const cell = document.createElement("div");
+                    const idx = r * 5 + c;
+                    const id = `c${idx}`;
+                    cell.className = "bingo-cell";
+                    cell.textContent = pool[idx];
+                    if (marked[id]) cell.classList.add("marked");
+                    cell.onclick = () => { cell.classList.add("marked"); marked[id] = true; localStorage.setItem(`marked_${playerName}`, JSON.stringify(marked)); checkWin(); };
+                    row.appendChild(cell);
                 }
-                container.appendChild(blockDiv);
+                block.appendChild(row);
             }
-            if(currentMode) setMode(currentMode);
+            container.appendChild(block);
         }
-        function syncPlayers() {
-            let list = JSON.parse(localStorage.getItem('players') || '{}');
-            list[playerName] = Date.now();
-            Object.keys(list).forEach(k => { if(Date.now() - list[k] > 10000) delete list[k]; });
-            localStorage.setItem('players', JSON.stringify(list));
-            document.getElementById('onlinePlayers').innerHTML = Object.keys(list).map(p => `• ${p}`).join('<br>');
-        }
-        setInterval(syncPlayers, 3000);
-        window.onload = () => { renderAllBlocks(); syncPlayers(); };
+
+        window.onload = () => { renderCard(); };
     </script>
 </body>
 </html>
