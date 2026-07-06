@@ -25,7 +25,7 @@
         .follow-logo:hover { transform: scale(1.05); }
         .marked { background: rgba(199, 125, 255, 0.6) !important; border: 2px solid #c77dff !important; pointer-events: none; }
         .bingo-cell { width: clamp(80px, 20vw, 100px); height: clamp(45px, 12vw, 60px); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: clamp(0.7rem, 2vw, 0.8rem); border: 1px solid #6a2cac; cursor: pointer; user-select: none; background: #120529; color: #e0aaff; text-align: center; padding: 2px; }
-        .empty { background-color: #200b40; cursor: default; }
+        .empty { visibility: hidden; pointer-events: none; border: none; background: transparent; }
         .bingo-row { display: flex; justify-content: center; gap: 1px; }
         .bingo-block { width: fit-content; margin: 1rem auto; border: 2px solid #4b1b78; padding: 0.6rem; border-radius: 8px; background: #0a001a; animation: neonGlow 4s infinite ease-in-out; }
         .block-title { text-align: center; color: #c77dff; font-size: 1rem; margin-bottom: 0.5rem; }
@@ -72,8 +72,8 @@
         <div class="popup-box text-left">
             <h2 class="text-2xl text-[#c77dff] font-bold mb-4 text-center">The rules:</h2>
             <p class="mb-4">Miss Candy will play the songs and you have to tap them on your sheet!</p>
-            <p class="mb-4">The first round is ONE LINE! This means when ONE horizontal line is completed in ANY of the three blocks from the played songs YOU’RE THE WINNER of that round! SHOUT BINGO!</p>
-            <p class="mb-4">The second round is TWO LINES! This means when TWO horizontal lines are completed in ANY of the three blocks (even in different blocks) from the played songs YOU’RE THE WINNER of that round! SHOUT BINGO!</p>
+            <p class="mb-4">The first round is ONE LINE! This means when ONE horizontal line is completed in ANY of the five blocks from the played songs YOU’RE THE WINNER of that round! SHOUT BINGO!</p>
+            <p class="mb-4">The second round is TWO LINES! This means when TWO horizontal lines are completed in ANY of the five blocks (even in different blocks) from the played songs YOU’RE THE WINNER of that round! SHOUT BINGO!</p>
             <p class="mb-4">The third round is a FULL HOUSE! This means when you complete a FULL BLOCK OF ALL THE SONGS from the played songs YOU’RE THE WINNER of that round! SHOUT BINGO!</p>
             <p class="yellow-pulse font-bold text-center mb-6">AFTER EVERY WINNER - TAP THE NEXT ROUND TYPE!</p>
             <div class="text-center">
@@ -91,10 +91,14 @@
 
     <script>
         const songList = [
-            "212", "...Baby One More Time", "Bad Romance", "Barbie Girl", "Believe", "Blinding Lights", "Break My Soul", "C'est La Vie", "Call Me Maybe", "Can't Get You Out of My Head", 
-            "Chandelier", "Dancing on My Own", "Espresso", "Everytime We Touch", "Firestarter", "Firework", "Genie in a Bottle", "Get Ur Freak On", "Gimme! Gimme! Gimme!", "Hips Don't Lie", 
-            "Hung Up", "I Gotta Feeling", "I Love It", "I Wanna Dance with Somebody", "Livin' La Vida Loca", "My Heart Will Go On", "New Rules", "Party in the U.S.A.", "Poker Face", "Shake It Off", 
-            "Sound of the Underground", "Spice Up Your Life", "Super Bass", "Survivor", "Sweet Dreams", "This Is What You Came For", "Tik Tok", "Torn", "Vogue", "Work"
+            "Dancing queen", "Believe", "Music", "Spinning around", "The best", "Every time we touch", "Rain on me", "Dancing on my own", "S&M", "Baby one more time",
+            "Break my soul", "Blinding lights", "Dance the night", "Good 4 you", "Sweet but psycho", "Flowers", "Whenever, wherever", "I’m outta love", "I want it that way", "Bootylicious",
+            "Milkshake", "Unwritten", "Espresso", "Untouched", "Man! I feel like a woman", "Heart of glass", "Disco inferno", "You make me feel", "Who do you think you are", "What is love",
+            "Dirrrrty", "Bad Romance", "Play", "I wanna dance with somebody", "Rolling into deep", "Happy", "Mr brightside", "Toxic", "Don’t stop the music", "Midnight sun",
+            "Respect", "Hung up", "All the things she said", "Sexy back", "Midnight sky", "Tik Tok", "I kissed a girl", "Murder on the dance floor", "Rehab", "Get the party started",
+            "Hot to go", "I’m just a girl", "Sweet dreams", "Push the button", "Danceteria", "Crazy in love", "I gotta feeling", "Abracadabra", "Be my lover", "Proud Mary",
+            "Padam padam", "Tattoo", "Mercy", "Fabulous", "Gimme gimme gimme", "Knock on wood", "Barbie girl", "New rules", "Break free", "Beat it",
+            "Call me", "2 be loved", "Strong enough", "You spin me round", "Lady marmalade"
         ];
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -159,14 +163,13 @@
             
             let shuffledSongs = [...songList].sort(() => rng() - 0.5);
 
-            for (let b = 1; b <= 3; b++) {
+            for (let b = 1; b <= 5; b++) {
                 const blockDiv = document.createElement("div");
                 blockDiv.className = "bingo-block";
                 blockDiv.innerHTML = `<div class="block-title">Block ${b}</div>`;
                 for (let r = 0; r < 3; r++) {
                     const rowDiv = document.createElement("div");
                     rowDiv.className = "bingo-row";
-                    // Pick 2 random indices to be "empty"
                     let emptyIndices = [0,1,2].sort(() => rng() - 0.5).slice(0, 1); 
                     for (let c = 0; c < 3; c++) {
                         const cell = document.createElement("div");
@@ -175,7 +178,7 @@
                             cell.className = "bingo-cell empty";
                         } else {
                             cell.className = "bingo-cell";
-                            cell.textContent = shuffledSongs.pop();
+                            cell.textContent = shuffledSongs.pop() || "Bonus";
                             if (marked[id]) cell.classList.add("marked");
                             cell.onclick = () => { cell.classList.add("marked"); marked[id] = true; localStorage.setItem(`marked_${playerName}`, JSON.stringify(marked)); checkWin(); };
                         }
